@@ -6,9 +6,35 @@ export default function useGetEstados(url) {
 	const [map, setMap] = useState([]);
 
 	useEffect(() => {
-		d3.json(url).then(resp => {
-			setMap(feature(resp, resp.objects.VEN_adm1).features);
-		});
+		d3.json(url)
+			.then(resp => {
+				const r = feature(resp, resp.objects.VEN_adm1).features;
+
+				return r;
+			})
+			// .then(resp => {
+			// 	resp.push({
+			// 		type: 'feature',
+			// 		properties: { NAME_1: 'no informado' },
+			// 		geometry: {
+			// 			type: 'Polygon',
+			// 			coordinates: [
+			// 				[
+			// 					[-58.51318359374999, 8.47237228290914],
+			// 					[-55.70068359375, 8.47237228290914],
+			// 					[-55.70068359375, 10.466205555063882],
+			// 					[-58.51318359374999, 10.466205555063882],
+			// 					[-58.51318359374999, 8.47237228290914]
+			// 				]
+			// 			]
+			// 		}
+			// 	});
+
+			// 	console.log(resp, 'test');
+			// })
+			.then(resp => {
+				setMap(resp);
+			});
 	}, []);
 
 	return [map, setMap];

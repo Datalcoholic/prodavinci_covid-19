@@ -1,5 +1,6 @@
 .basemap,
-.edos {
+.edos,
+.bubbles {
 	position: absolute;
 	left: 50%;
 	top: 0%;
@@ -12,4 +13,10 @@
 
 .basemap {
 	z-index: 1;
+}
+
+.text {
+	font-size: 10;
+	fill: '#fdfdfd';
+	text-anchor: middle;
 }
