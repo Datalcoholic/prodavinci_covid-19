@@ -1,1 +1,15 @@
+.basemap,
+.edos {
+	position: absolute;
+	left: 50%;
+	top: 0%;
+	transform: translate(10%, 0%);
+}
 
+.edos {
+	z-index: -5;
+}
+
+.basemap {
+	z-index: 1;
+}
