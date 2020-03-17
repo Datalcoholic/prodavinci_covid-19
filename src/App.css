@@ -1,3 +1,52 @@
+:root {
+	--color-primary-0: #0b1942;
+	--color-primary-1: #38487a;
+	--color-primary-2: #1d2d5d;
+	--color-primary-3: #040d29;
+	--color-primary-4: #010614;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: 2fr 1fr 1fr;
+	grid-template-rows: repeat(5, 1fr);
+	row-gap: 15px;
+	column-gap: 10px;
+	background-color: var(--color-primary-0);
+	color: rgb(214, 214, 214);
+	height: 100vh;
+}
+
+.graph-title {
+	grid-column: 1/4;
+	grid-row: 1;
+	justify-self: center;
+	align-self: center;
+}
+.cards {
+	background-color: var(--color-primary-2);
+}
+
+#card_1 {
+	grid-column: 3;
+	grid-row: 2;
+}
+
+#card_2 {
+	grid-column: 3;
+	grid-row: 3;
+}
+#card_3 {
+	grid-column: 3;
+	grid-row: 4;
+}
+.map-container {
+	grid-column: 1/4;
+	grid-row: 2/6;
+	height: auto;
+	width: auto;
+}
+
 .basemap,
 .edos,
 .bubbles {
