@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import useGetTopoJson from '../hooks/useGetTopoJson';
 import * as d3 from 'd3';
 import { geoPath, style, geoCentroid, scaleSqrt } from 'd3';
 import { feature } from 'topojson-client';
 import useGetEstados from '../hooks/useGetEstados';
-import useGetInfected from '../hooks/useGetInfected';
+import getInfected from '../utilities/getInfected';
+import { InfectedContext } from '../contexts/InfectedContext';
 
 export default function BaseMap() {
 	const [venBase, setVenBase] = useGetTopoJson('/data/Ven_base.json');
@@ -13,9 +14,12 @@ export default function BaseMap() {
 		width: window.innerWidth * 1.2,
 		height: window.innerHeight * 1.2
 	});
-	const [infected, setInfected] = useGetInfected(
-		'/data/cov-19 ven - Sheet1 (2).csv'
-	);
+
+	const { infected, setInfected } = useContext(InfectedContext);
+
+	// const [infected, setInfected] = useGetInfected(
+	// 	'/data/cov-19 ven - Sheet1.csv'
+	// );
 
 	const [infectedPerDay, setInfectedPerDay] = useState([]);
 	const [infectedPerState, setInfectedPerState] = useState([]);
@@ -23,29 +27,28 @@ export default function BaseMap() {
 
 	// añadir no informados
 
-	// useEffect(() => {
-	// 	const ed =
-	edos.push({
-		type: 'Feature',
-		properties: { NAME_1: 'no informado' },
-		geometry: {
-			type: 'Polygon',
-			coordinates: [
-				[
-					[-60.09521484375, 10.293301000109102],
-					[-59.78759765625, 10.293301000109102],
-					[-59.78759765625, 10.595820834654047],
-					[-60.09521484375, 10.595820834654047],
-					[-60.09521484375, 10.293301000109102]
+	useEffect(() => {
+		//const ed =
+		edos.push({
+			type: 'Feature',
+			properties: { NAME_1: 'no informado' },
+			geometry: {
+				type: 'Polygon',
+				coordinates: [
+					[
+						[-60.09521484375, 10.293301000109102],
+						[-59.78759765625, 10.293301000109102],
+						[-59.78759765625, 10.595820834654047],
+						[-60.09521484375, 10.595820834654047],
+						[-60.09521484375, 10.293301000109102]
+					]
 				]
-			]
-		}
-	});
-	// 	setEdos(ed);
-	// }, [centroids]);
+			}
+		});
+		// 	setEdos(ed);
+	}, [edos]);
 
 	//Infected per day total
-	console.log('edos', edos);
 	useEffect(() => {
 		const infectedPerDay = d3
 			.nest()
@@ -54,6 +57,7 @@ export default function BaseMap() {
 			})
 			.entries(infected);
 
+		// eslint-disable-next-line no-sequences
 		infectedPerDay.map(d => ((d.totalEdo = d.values.length), d));
 		setInfectedPerDay(infectedPerDay);
 	}, [infected]);
@@ -79,7 +83,7 @@ export default function BaseMap() {
 	const projection = d3
 		.geoMercator()
 		.scale(3000)
-		.center([-68, 8.1]);
+		.center([-65.5, 7.5]);
 
 	const geoGenerator = geoPath().projection(projection);
 
@@ -114,10 +118,10 @@ export default function BaseMap() {
 	//console.log('centroids', centroids);
 
 	return (
-		<div className='mapContainer'>
+		<div className='map-container'>
 			<svg
 				viewBox={`0 0 ${WH.width} ${WH.height}`}
-				style={{ backgroundColor: '#f2f2f2' }}
+				//style={{ backgroundColor: '#f2f2f2' }}
 			>
 				<g className='edos'>
 					{edos.map(d => {
@@ -129,7 +133,11 @@ export default function BaseMap() {
 									key={`${d.properties.NAME_1}`}
 									className={`${d.properties.NAME_1}`}
 									d={geoGenerator(d)}
-									style={{ fill: '#928d92', stroke: '#fff', strokeWidth: 0.5 }}
+									style={{
+										fill: '#38487a',
+										stroke: '#ffff',
+										strokeWidth: 0.5
+									}}
 								/>
 							);
 						}
@@ -140,7 +148,7 @@ export default function BaseMap() {
 					<path
 						d={geoGenerator(venBase)}
 						className='country'
-						style={{ stroke: '#5c5c5c', strokeWidth: 1.2, fill: 'none' }}
+						style={{ stroke: '##979898', strokeWidth: 1.2, fill: 'none' }}
 					/>
 				</g>
 
@@ -154,9 +162,10 @@ export default function BaseMap() {
 									cx={350}
 									cy={450}
 									r={radius(d.totalEdo)}
-									fill='#cf29be'
-									stroke='#990e8b'
-									opacity={0.7}
+									fill='#EC1D96'
+									stroke='#82004c'
+									strokeWidth={1.5}
+									opacity={0.62}
 								></circle>
 								<text
 									key={`${d.key}_text`}
@@ -185,9 +194,10 @@ export default function BaseMap() {
 									cx={d.centroid[0]}
 									cy={d.centroid[1]}
 									r={radius(d.totalEdo)}
-									fill='#cf29be'
-									stroke='#990e8b'
-									opacity={0.7}
+									fill='#EC1D96'
+									stroke='#82004c'
+									strokeWidth={1.5}
+									opacity={0.62}
 								></circle>
 								<text
 									key={`${d.key}_text`}
