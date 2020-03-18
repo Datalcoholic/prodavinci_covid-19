@@ -134,9 +134,9 @@ export default function BaseMap() {
 									className={`${d.properties.NAME_1}`}
 									d={geoGenerator(d)}
 									style={{
-										fill: '#38487a',
-										stroke: '#ffff',
-										strokeWidth: 0.5
+										fill: '#dbdbdb',
+										stroke: '#626263',
+										strokeWidth: 0.7
 									}}
 								/>
 							);
@@ -148,7 +148,7 @@ export default function BaseMap() {
 					<path
 						d={geoGenerator(venBase)}
 						className='country'
-						style={{ stroke: '##979898', strokeWidth: 1.2, fill: 'none' }}
+						style={{ stroke: '#626263', strokeWidth: 1.2, fill: 'none' }}
 					/>
 				</g>
 
@@ -162,8 +162,8 @@ export default function BaseMap() {
 									cx={350}
 									cy={450}
 									r={radius(d.totalEdo)}
-									fill='#EC1D96'
-									stroke='#82004c'
+									fill='#ffae19'
+									stroke='#A66C00'
 									strokeWidth={1.5}
 									opacity={0.62}
 								></circle>
@@ -172,7 +172,7 @@ export default function BaseMap() {
 									x={350}
 									y={450 + 4.5}
 									className='text'
-									style={{ fill: '#fdfdfd' }}
+									style={{ fill: 'black' }}
 								>
 									{d.totalEdo}
 								</text>
@@ -194,8 +194,8 @@ export default function BaseMap() {
 									cx={d.centroid[0]}
 									cy={d.centroid[1]}
 									r={radius(d.totalEdo)}
-									fill='#EC1D96'
-									stroke='#82004c'
+									fill='#ffae19'
+									stroke='#A66C00'
 									strokeWidth={1.5}
 									opacity={0.62}
 								></circle>
@@ -204,7 +204,7 @@ export default function BaseMap() {
 									x={d.centroid[0]}
 									y={d.centroid[1] + 4}
 									className='text'
-									style={{ fill: '#fdfdfd' }}
+									style={{ fill: 'black' }}
 								>
 									{d.totalEdo}
 								</text>

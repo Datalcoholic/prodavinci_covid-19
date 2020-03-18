@@ -55,15 +55,18 @@ export default function Graphs() {
 			<h1 className='graph-title'>Distribucion de contagios confirmados</h1>
 			<InfectedContext.Provider value={{ infected, setInfected }}>
 				<BaseMap />
-				<Cards
-					total={totalContagios}
-					title={'TOTAL CONTAGIOS CONFIRMADOS:'}
-					id={'card_1'}
-					color='#EC1D96'
-				/>
-				<Cards total={0} title={'TOTAL FALLECIDOS:'} id={'card_2'} />
-				<Cards total={0} title={'TOTAL RECUPERADOS'} id={'card_3'} />
 
+				<div className='cards-container'>
+					<Cards
+						total={totalContagios}
+						title={'TOTAL CONTAGIOS CONFIRMADOS:'}
+						id={'card_1'}
+						color='#ffae19'
+						WebkitTextStrokeColor='#A66C00'
+					/>
+					<Cards total={0} title={'TOTAL FALLECIDOS:'} id={'card_2'} />
+					<Cards total={0} title={'TOTAL RECUPERADOS'} id={'card_3'} />
+				</div>
 				<WorldDataContext.Provider value={{ worldData, setWorldData }}>
 					<LinearGraph />
 				</WorldDataContext.Provider>

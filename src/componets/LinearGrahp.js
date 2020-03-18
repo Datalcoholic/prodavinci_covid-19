@@ -25,7 +25,7 @@ export default function LinearGrahp() {
 			<h3>Total Casos por Dias</h3>
 			<svg
 				width={600}
-				height={500}
+				height={300}
 				viewBox='0 0 100 100'
 				// style={{ backgroundColor: '#1d2d5d' }}
 			></svg>
