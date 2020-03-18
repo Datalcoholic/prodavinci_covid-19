@@ -22,13 +22,22 @@ export default function LinearGrahp() {
 	console.log(nestWorldData);
 	return (
 		<div className='linear-container'>
-			<h3>Total Casos por Dias</h3>
-			<svg
-				width={600}
-				height={300}
-				viewBox='0 0 100 100'
-				// style={{ backgroundColor: '#1d2d5d' }}
-			></svg>
+			<div className='tabs-container'>
+				<button className='tc'>Total Casos</button>
+				<button className='tcn'>total Casos nuevos</button>
+			</div>
+			<div className='tools-container'>
+				<div>busqueda</div>
+				<div>barra</div>
+			</div>
+			<div className='lin-graph-container'>
+				<svg
+					width={900}
+					height={300}
+					viewBox='0 0 100 100'
+					style={{ backgroundColor: '#e0e0e0', borderRadius: 10 }}
+				></svg>
+			</div>
 		</div>
 	);
 }
