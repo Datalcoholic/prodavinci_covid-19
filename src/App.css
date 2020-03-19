@@ -119,6 +119,11 @@
 	text-align: center;
 }
 
+.y-axis-container {
+	display: flex;
+	align-items: center;
+}
+
 h4 {
 	text-transform: uppercase;
 	font-size: 14px;

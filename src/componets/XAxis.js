@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import * as d3 from 'd3';
 
-export default function XAxis({ domain = [0, 1000], range = [0, 585] }) {
+export default function XAxis({ domain = [0, 120], range = [0, 900] }) {
 	const ticks = useMemo(() => {
 		const xScale = d3
 			.scaleLinear()
@@ -19,11 +19,15 @@ export default function XAxis({ domain = [0, 1000], range = [0, 585] }) {
 	}, [domain.join('-'), range.join('-')]);
 
 	return (
-		<svg viewBox='0 -5 200 50' style={{ overflow: 'visible' }} height={50}>
+		<svg
+			//viewBox='0 -5 200 50'
+			style={{ overflow: 'visible' }}
+			height={50}
+		>
 			<g
 				className='xaxis-container'
 				style={{
-					transform: 'translate(-195px, 150px)',
+					transform: 'translate(0px, 298px)',
 					strokeLinecap: 'round'
 				}}
 			>
@@ -42,9 +46,9 @@ export default function XAxis({ domain = [0, 1000], range = [0, 585] }) {
 						<text
 							key={value}
 							style={{
-								fontSize: '7px',
+								fontSize: '10px',
 								textAnchor: 'middle',
-								transform: 'translateY(15px)'
+								transform: 'translateY(20px)'
 							}}
 						>
 							{value}

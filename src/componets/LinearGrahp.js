@@ -39,9 +39,9 @@ export default function LinearGrahp() {
 			</div>
 			<div className='lin-graph-container'>
 				<svg
-					width={900}
-					height={300}
-					viewBox='0 0 100 100'
+					width={1000}
+					height={400}
+					viewBox='-15 0 1000 350'
 					style={{ backgroundColor: '#e0e0e0', borderRadius: 10 }}
 				>
 					<XAxis />
