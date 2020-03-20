@@ -159,7 +159,7 @@ export default function BaseMap() {
 								<circle
 									key={`${d.edo}_circle`}
 									//	className={`${d.key}_circle`}
-									cx={350}
+									cx={150}
 									cy={450}
 									r={radius(d.totalEdo)}
 									fill='#ffae19'
@@ -169,7 +169,7 @@ export default function BaseMap() {
 								></circle>
 								<text
 									key={`${d.key}_text`}
-									x={350}
+									x={150}
 									y={450 + 4.5}
 									className='text'
 									style={{ fill: 'black' }}
@@ -178,7 +178,7 @@ export default function BaseMap() {
 								</text>
 								<text
 									key={`${d.key}_text`}
-									x={350}
+									x={150}
 									y={450 + 35}
 									className='text'
 									style={{ fill: '#black' }}

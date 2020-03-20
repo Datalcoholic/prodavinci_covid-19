@@ -1,15 +1,20 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import * as d3 from 'd3';
+import { YDominioContext } from '../contexts/YDominioContext';
 
 export default function YAxis({ domain = [0, 60], range = [0, 300] }) {
+	const { totalMax, setTotalMax } = useContext(YDominioContext);
+
+	const format = d3.format(',d');
+
 	const ticks = useMemo(() => {
 		const yScale = d3
 			.scaleLinear()
-			.domain(domain)
+			.domain([0, totalMax])
 			.range(range);
 
 		const scaleHeigt = range[1] - range[0];
-		const pixelsPerTick = 30;
+		const pixelsPerTick = 40;
 		const numberOfTicksTarget = Math.max(
 			1,
 			Math.floor(scaleHeigt / pixelsPerTick)
@@ -42,21 +47,14 @@ export default function YAxis({ domain = [0, 60], range = [0, 300] }) {
 		<svg
 			style={{ overflow: 'visible' }}
 			//viewBox='160 70 370 200'
+			width={20}
 		>
 			<g className='y-axis-container'>
 				{ticks.map(({ value, yOffset }) =>
 					value !== 0 ? (
 						<g key={value} transform={`translate(0, ${yOffset})`}>
-							{/* <line
-								key={value}
-								x1={10}
-								x2={900}
-								stroke='black'
-								style={{ strokeLinecap: 'round' }}
-							/> */}
-
-							<text style={{ fontSize: '9px', textAnchor: 'middle' }}>
-								{value}
+							<text style={{ fontSize: '10px', textAnchor: 'middle' }}>
+								{format(value)}
 							</text>
 						</g>
 					) : (
@@ -68,11 +66,12 @@ export default function YAxis({ domain = [0, 60], range = [0, 300] }) {
 						<g key={value} transform={`translate(0, ${yOffset})`}>
 							<line
 								key={value}
-								x1={10}
+								x1={20}
 								y1={-3}
 								x2={900}
 								y2={-3}
-								stroke='black'
+								stroke='#a0a0a0'
+								strokeWidth={0.5}
 								style={{ strokeLinecap: 'round' }}
 							/>
 						</g>

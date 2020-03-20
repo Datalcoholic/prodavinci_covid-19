@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import * as d3 from 'd3';
 import BaseMap from './BaseMap';
 import Cards from './Cards';
-import LinearGraph from './LinearGrahp';
 import { InfectedContext } from '../contexts/InfectedContext';
 import { WorldDataContext } from '../contexts/WorldDataContext';
+import LineChart from './LineChart';
 
 export default function Graphs() {
 	const [infected, setInfected] = useState([]);
@@ -68,7 +68,7 @@ export default function Graphs() {
 					<Cards total={0} title={'TOTAL RECUPERADOS'} id={'card_3'} />
 				</div>
 				<WorldDataContext.Provider value={{ worldData, setWorldData }}>
-					<LinearGraph />
+					<LineChart />
 				</WorldDataContext.Provider>
 			</InfectedContext.Provider>
 		</div>

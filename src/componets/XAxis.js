@@ -1,22 +1,27 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import * as d3 from 'd3';
+import { XDominioContext } from '../contexts/XDominioContext';
+import { SliderContext } from '../contexts/SliderContext';
 
-export default function XAxis({ domain = [0, 120], range = [0, 900] }) {
+export default function XAxis({ range = [0, 900] }) {
+	const { maxD, setMaxD } = useContext(XDominioContext);
+	const { sliderValue, setSliderValue } = useContext(SliderContext);
+
 	const ticks = useMemo(() => {
 		const xScale = d3
 			.scaleLinear()
-			.domain(domain)
+			.domain([0, sliderValue])
 			.range(range);
 
 		const width = range[1] - range[0];
-		const pixelsPerTick = 30;
+		const pixelsPerTick = 100;
 		const numberOfTicksTarget = Math.max(1, Math.floor(width / pixelsPerTick));
 
 		return xScale.ticks(numberOfTicksTarget).map(value => ({
 			value,
 			xOffset: xScale(value)
 		}));
-	}, [domain.join('-'), range.join('-')]);
+	}, [[0, sliderValue].join('-'), range.join('-')]);
 
 	return (
 		<svg
@@ -24,10 +29,13 @@ export default function XAxis({ domain = [0, 120], range = [0, 900] }) {
 			style={{ overflow: 'visible' }}
 			height={50}
 		>
+			<text x={900 / 2} y={400 - 50}>
+				Dias
+			</text>
 			<g
 				className='xaxis-container'
 				style={{
-					transform: 'translate(0px, 298px)',
+					transform: 'translate(0px, 300px)',
 					strokeLinecap: 'round'
 				}}
 			>
