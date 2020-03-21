@@ -64,8 +64,20 @@ export default function Graphs() {
 						color='#ffae19'
 						WebkitTextStrokeColor='#A66C00'
 					/>
-					<Cards total={0} title={'TOTAL FALLECIDOS:'} id={'card_2'} />
-					<Cards total={0} title={'TOTAL RECUPERADOS'} id={'card_3'} />
+					<Cards
+						total={0}
+						title={'TOTAL FALLECIDOS:'}
+						id={'card_2'}
+						color='#d81159'
+						WebkitTextStrokeColor='#890033'
+					/>
+					<Cards
+						total={0}
+						title={'TOTAL RECUPERADOS'}
+						id={'card_3'}
+						color='#09827e'
+						WebkitTextStrokeColor='#00514E'
+					/>
 				</div>
 				<WorldDataContext.Provider value={{ worldData, setWorldData }}>
 					<LineChart />

@@ -155,9 +155,9 @@ export default function BaseMap() {
 				<g className='bubbles'>
 					{centroids.map((d, i) => {
 						return d.properties.NAME_1 === 'no informado' ? (
-							<g key={`${d.edo}-${i}`}>
+							<g key={`${d.key}-${i}`}>
 								<circle
-									key={`${d.edo}_circle`}
+									key={`${d.key}_circle`}
 									//	className={`${d.key}_circle`}
 									cx={150}
 									cy={450}
@@ -181,17 +181,21 @@ export default function BaseMap() {
 									x={150}
 									y={450 + 35}
 									className='text'
-									style={{ fill: '#black' }}
+									style={{
+										fill: 'black',
+										fontSize: '20px',
+										WebkitTextStroke: '1.5px #a0a0a0',
+										paintOrder: 'stroke'
+									}}
 								>
 									{d.key}
 								</text>
 							</g>
 						) : (
-							<g key={`${d.edo}-${i}`}>
+							<g key={`${d.key}-${i}`}>
 								<circle
-									key={`${d.edo}_circle`}
-									//	className={`${d.key}_circle`}
-									cx={d.centroid[0]}
+									key={`${d.key}_circle`}
+									cx={d.key === 'vargas' ? d.centroid[0] + 10 : d.centroid[0]} // moviendo el estado vargas para evitar overlap
 									cy={d.centroid[1]}
 									r={radius(d.totalEdo)}
 									fill='#ffae19'
@@ -201,10 +205,15 @@ export default function BaseMap() {
 								></circle>
 								<text
 									key={`${d.key}_text`}
-									x={d.centroid[0]}
+									x={d.key === 'vargas' ? d.centroid[0] + 10 : d.centroid[0]}
 									y={d.centroid[1] + 4}
 									className='text'
-									style={{ fill: 'black' }}
+									style={{
+										fill: 'black',
+										fontSize: '20px',
+										WebkitTextStroke: '1.5px #a0a0a0',
+										paintOrder: 'stroke'
+									}}
 								>
 									{d.totalEdo}
 								</text>

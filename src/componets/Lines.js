@@ -49,7 +49,7 @@ export default function LineChart() {
 		);
 
 		setFilterNestData(filteredData);
-	}, [countriesSelection]);
+	}, [countriesSelection, nestWorldData]);
 
 	// Nest world Data
 	useEffect(() => {

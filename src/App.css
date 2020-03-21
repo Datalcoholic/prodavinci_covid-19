@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&family=Teko:wght@300;400;500;600;700&display=swap');
+
 :root {
 	--color-primary-0: #a0a0a0;
 	--color-primary-1: #ffffff;
@@ -29,9 +31,13 @@
 	column-gap: 8px;
 	row-gap: 20px;
 	align-content: space-around;
+	font-family: 'Teko', 'Roboto';
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 .linear-container {
+	font-family: 'Roboto Condensed';
 	background-color: var(--color-primary-5);
 	border-radius: 10px;
 	display: grid;
@@ -54,11 +60,15 @@
 }
 
 .tc {
+	font-family: 'Roboto Condensed';
+	font-weight: 700;
 	grid-column: 2/3;
 	text-transform: uppercase;
 }
 
 .tcn {
+	font-family: 'Roboto Condensed';
+	font-weight: 700;
 	grid-column: 3/4;
 	text-transform: uppercase;
 }
@@ -89,6 +99,15 @@
 	grid-column: 1/3;
 	grid-row: 4/5;
 	justify-self: center;
+	font-weight: 300;
+}
+
+x.y-axis-container,
+.y-axis-container,
+.xaxis-container {
+	font-family: 'Roboto Condensed';
+	font-weight: 600;
+	fill: var(--color-primary-4);
 }
 
 .grid {
@@ -135,6 +154,7 @@
 }
 
 .y-axis-container {
+	fill: var(--color-primary-4);
 	display: flex;
 	align-items: center;
 }

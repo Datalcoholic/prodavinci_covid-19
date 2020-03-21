@@ -10,7 +10,7 @@ export default function XAxis({ range = [0, 900] }) {
 	const ticks = useMemo(() => {
 		const xScale = d3
 			.scaleLinear()
-			.domain([0, sliderValue])
+			.domain([0, maxD])
 			.range(range);
 
 		const width = range[1] - range[0];
@@ -21,49 +21,60 @@ export default function XAxis({ range = [0, 900] }) {
 			value,
 			xOffset: xScale(value)
 		}));
-	}, [[0, sliderValue].join('-'), range.join('-')]);
+	}, [[0, maxD].join('-'), range.join('-')]);
 
 	return (
-		<svg
-			//viewBox='0 -5 200 50'
-			style={{ overflow: 'visible' }}
-			height={50}
-		>
-			<text x={900 / 2} y={400 - 50}>
-				Dias
-			</text>
-			<g
-				className='xaxis-container'
-				style={{
-					transform: 'translate(0px, 300px)',
-					strokeLinecap: 'round'
-				}}
+		<g className='x-axis-container'>
+			<svg
+				//viewBox='0 -5 200 50'
+				style={{ overflow: 'visible' }}
+				height={50}
 			>
-				<path
-					d={['M', range[0], 6, 'v', -6, 'H', range[1], 'v', 6].join(' ')}
-					fill='none'
-					stroke='currentColor'
-				/>
-				{ticks.map(({ value, xOffset }) => (
-					<g key={value} transform={`translate(${xOffset}, 0)`}>
-						<line
-							y2='6'
-							stroke='currentColor'
-							style={{ strokeLinecap: 'round' }}
-						/>
-						<text
-							key={value}
-							style={{
-								fontSize: '10px',
-								textAnchor: 'middle',
-								transform: 'translateY(20px)'
-							}}
-						>
-							{value}
-						</text>
-					</g>
-				))}
-			</g>
-		</svg>
+				<text
+					x={900 / 2}
+					y={400 - 65}
+					style={{
+						fill: '#626263',
+						fontFamily: 'Roboto Condensed',
+						fontSize: '13px',
+						textAnchor: 'center'
+					}}
+				>
+					Dias desde el inicio
+				</text>
+				<g
+					className='xaxis-container'
+					style={{
+						transform: 'translate(0px, 300px)',
+						strokeLinecap: 'round'
+					}}
+				>
+					<path
+						d={['M', range[0], 6, 'v', -6, 'H', range[1], 'v', 6].join(' ')}
+						fill='none'
+						stroke='currentColor'
+					/>
+					{ticks.map(({ value, xOffset }) => (
+						<g key={value} transform={`translate(${xOffset}, 0)`}>
+							<line
+								y2='6'
+								stroke='currentColor'
+								style={{ strokeLinecap: 'round' }}
+							/>
+							<text
+								key={value}
+								style={{
+									fontSize: '12px',
+									textAnchor: 'middle',
+									transform: 'translateY(20px)'
+								}}
+							>
+								{value}
+							</text>
+						</g>
+					))}
+				</g>
+			</svg>
+		</g>
 	);
 }

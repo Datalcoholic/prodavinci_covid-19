@@ -53,7 +53,7 @@ export default function YAxis({ domain = [0, 60], range = [0, 300] }) {
 				{ticks.map(({ value, yOffset }) =>
 					value !== 0 ? (
 						<g key={value} transform={`translate(0, ${yOffset})`}>
-							<text style={{ fontSize: '10px', textAnchor: 'middle' }}>
+							<text style={{ fontSize: '12px', textAnchor: 'middle' }}>
 								{format(value)}
 							</text>
 						</g>
