@@ -20,6 +20,28 @@ export default function LineChart() {
 	//TODO:
 	//Filtrar nest data por dias con el valor del slider
 
+	const colors = [
+		'#ffae19',
+		'#09827e',
+		'#7cb24c',
+		'#8e0751',
+		'#F84714',
+		'#4024B0',
+		'#0E3A8C'
+	];
+
+	//Add colors to filterNestData
+	useEffect(() => {
+		const col = filterNestData.map(
+			(country, i) => (
+				(country.color = filterNestData.length - 1 > i ? colors[i] : '#626263'),
+				country
+			)
+		);
+
+		setFilterNestData({ ...filterNestData, col });
+	}, [countriesSelection]);
+
 	// filter data set by countriesSelections
 	useEffect(() => {
 		const filteredData = nestWorldData.filter(country =>
@@ -75,7 +97,7 @@ export default function LineChart() {
 	const xScale = d3
 		.scaleLinear()
 		.domain([0, maxD])
-		.range([0, 900]);
+		.range([0, 850]);
 	const YScale = d3
 		.scaleLinear()
 		.domain([0, totalMax])
@@ -91,28 +113,65 @@ export default function LineChart() {
 		});
 
 	return (
-		<svg>
-			{filterNestData.map(d => (
-				<path
-					d={line(d.values)}
-					key={d.key.toLowerCase()}
-					stroke='black'
-					fill='none'
-				/>
-			))}
+		<svg style={{ overflow: 'visible' }}>
+			<g className='path-container'>
+				{filterNestData.map((d, i) => (
+					<path
+						d={line(d.values)}
+						key={d.key.toLowerCase()}
+						style={{ stroke: '#e0e0e0', strokeWidth: '3px', fill: 'none' }}
+						className={`backline-pais-${i}`}
+					/>
+				))}
 
-			{filterNestData.map(country =>
-				country.values.map(row => (
-					<g className='points-container'>
+				{filterNestData.map((d, i) => (
+					<path
+						d={line(d.values)}
+						key={d.key.toLowerCase()}
+						stroke={d.color ? d.color : '#d81159'}
+						fill='none'
+						className={`pais-${i}`}
+					/>
+				))}
+			</g>
+			<g className='points-container'>
+				{filterNestData.map((country, a) =>
+					country.values.map((row, i) => (
 						<circle
+							className={`pais-${a}-circle`}
 							key={`${row.dia_numero}-circle`}
 							cx={xScale(row.dia_numero)}
 							cy={YScale(row.total_cases)}
-							r={2}
-							fill='black'
+							r={country.values.length - 1 === i ? 3 : 2}
+							fill={country.color ? country.color : '#d81159'}
 						/>
-					</g>
-				))
+					))
+				)}
+			</g>
+			{filterNestData.map(country =>
+				country.values.map((row, i) =>
+					country.values.length - 1 === i ? (
+						<g className='label-container'>
+							<text
+								key={`${row.dia_numero}-text`}
+								x={xScale(row.dia_numero) + 10}
+								y={YScale(row.total_cases)}
+								fill={country.color ? country.color : '#d81159'}
+								style={{
+									fontSize: '12px',
+									fontWeight: 'bold',
+									stroke: '#e0e0e0',
+									strokeWidth: '1.5px',
+									paintOrder: 'stroke'
+								}}
+							>
+								{row.location}
+							</text>
+						</g>
+					) : (
+						``
+					)
+				)
 			)}
 		</svg>
 	);
