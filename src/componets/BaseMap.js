@@ -165,7 +165,7 @@ export default function BaseMap() {
 									fill='#ffae19'
 									stroke='#A66C00'
 									strokeWidth={1.5}
-									opacity={0.62}
+									opacity={0.4}
 								></circle>
 								<text
 									key={`${d.key}_text`}
@@ -201,7 +201,7 @@ export default function BaseMap() {
 									fill='#ffae19'
 									stroke='#A66C00'
 									strokeWidth={1.5}
-									opacity={0.62}
+									opacity={0.4}
 								></circle>
 								<text
 									key={`${d.key}_text`}

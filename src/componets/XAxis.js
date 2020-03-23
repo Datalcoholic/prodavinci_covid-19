@@ -53,6 +53,7 @@ export default function XAxis({ range = [0, 900] }) {
 						d={['M', range[0], 6, 'v', -6, 'H', range[1], 'v', 6].join(' ')}
 						fill='none'
 						stroke='currentColor'
+						strokeWidth={0.5}
 					/>
 					{ticks.map(({ value, xOffset }) => (
 						<g key={value} transform={`translate(${xOffset}, 0)`}>

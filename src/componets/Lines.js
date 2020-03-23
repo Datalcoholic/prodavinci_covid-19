@@ -5,6 +5,8 @@ import { XDominioContext } from '../contexts/XDominioContext';
 import { YDominioContext } from '../contexts/YDominioContext';
 import { CountriesContext } from '../contexts/CountriesContext';
 import { CountriesSelectionContext } from '../contexts/CountriesSelectionContext';
+import { SliderContext } from '../contexts/SliderContext';
+import { IsLogContext } from '../contexts/IsLogContext';
 
 export default function LineChart() {
 	const { worldData, setWorldData } = useContext(WorldDataContext);
@@ -16,6 +18,8 @@ export default function LineChart() {
 		CountriesSelectionContext
 	);
 	const [filterNestData, setFilterNestData] = useState([]);
+	const { sliderValue, setSliderValue } = useContext(SliderContext);
+	const { isLog, setIsLog } = useContext(IsLogContext);
 
 	//TODO:
 	//Filtrar nest data por dias con el valor del slider
@@ -49,7 +53,7 @@ export default function LineChart() {
 		);
 
 		setFilterNestData(filteredData);
-	}, [countriesSelection, nestWorldData]);
+	}, [countriesSelection, nestWorldData, sliderValue]);
 
 	// Nest world Data
 	useEffect(() => {
@@ -103,22 +107,31 @@ export default function LineChart() {
 		.domain([0, totalMax])
 		.range([300, 0]);
 
+	const yScaleLog = d3
+		.scaleLog()
+		.domain([1, 100000])
+		.range([300, 0]);
+
 	const line = d3
 		.line()
 		.x(d => {
 			return xScale(d.dia_numero);
 		})
 		.y(d => {
-			return YScale(d.total_cases);
+			return isLog ? yScaleLog(d.total_cases) : YScale(d.total_cases);
 		});
+
+	function mouseOverHandler(d) {
+		console.log('mouseHandler', d.target);
+	}
 
 	return (
 		<svg style={{ overflow: 'visible' }}>
 			<g className='path-container'>
 				{filterNestData.map((d, i) => (
 					<path
+						key={`${d.key}-${i}-back-line`}
 						d={line(d.values)}
-						key={d.key.toLowerCase()}
 						style={{ stroke: '#e0e0e0', strokeWidth: '3px', fill: 'none' }}
 						className={`backline-pais-${i}`}
 					/>
@@ -127,7 +140,7 @@ export default function LineChart() {
 				{filterNestData.map((d, i) => (
 					<path
 						d={line(d.values)}
-						key={d.key.toLowerCase()}
+						key={`${d.key}-${i}`}
 						stroke={d.color ? d.color : '#d81159'}
 						fill='none'
 						className={`pais-${i}`}
@@ -141,9 +154,10 @@ export default function LineChart() {
 							className={`pais-${a}-circle`}
 							key={`${row.dia_numero}-circle`}
 							cx={xScale(row.dia_numero)}
-							cy={YScale(row.total_cases)}
+							cy={isLog ? yScaleLog(row.total_cases) : YScale(row.total_cases)}
 							r={country.values.length - 1 === i ? 3 : 2}
 							fill={country.color ? country.color : '#d81159'}
+							onMouseOver={mouseOverHandler}
 						/>
 					))
 				)}
@@ -155,7 +169,7 @@ export default function LineChart() {
 							<text
 								key={`${row.dia_numero}-text`}
 								x={xScale(row.dia_numero) + 10}
-								y={YScale(row.total_cases)}
+								y={isLog ? yScaleLog(row.total_cases) : YScale(row.total_cases)}
 								fill={country.color ? country.color : '#d81159'}
 								style={{
 									fontSize: '12px',
@@ -173,6 +187,14 @@ export default function LineChart() {
 					)
 				)
 			)}
+
+			<text
+				style={{ fontSize: '11px', fontStyle: 'italic', fill: '#818181' }}
+				x={-20}
+				y={350}
+			>
+				Fuente: European CDC
+			</text>
 		</svg>
 	);
 }

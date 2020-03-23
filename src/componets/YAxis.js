@@ -1,9 +1,11 @@
 import React, { useMemo, useContext } from 'react';
 import * as d3 from 'd3';
 import { YDominioContext } from '../contexts/YDominioContext';
+import { IsLogContext } from '../contexts/IsLogContext';
 
 export default function YAxis({ domain = [0, 60], range = [0, 300] }) {
 	const { totalMax, setTotalMax } = useContext(YDominioContext);
+	const { isLog, setIsLog } = useContext(IsLogContext);
 
 	const format = d3.format(',d');
 
@@ -13,14 +15,21 @@ export default function YAxis({ domain = [0, 60], range = [0, 300] }) {
 			.domain([0, totalMax])
 			.range(range);
 
+		const yScaleLog = d3
+			.scaleLog()
+			.domain([10, 100000])
+			.range(range);
+
 		const scaleHeigt = range[1] - range[0];
-		const pixelsPerTick = 40;
+		const pixelsPerTick = isLog ? 100 : 30;
 		const numberOfTicksTarget = Math.max(
 			1,
 			Math.floor(scaleHeigt / pixelsPerTick)
 		);
 
-		const arrValues = yScale.ticks(numberOfTicksTarget);
+		const arrValues = isLog
+			? yScaleLog.ticks(numberOfTicksTarget)
+			: yScale.ticks(numberOfTicksTarget);
 		//Invertir el orden
 		const arrYOffset = arrValues
 			// .sort((a, b) => {
@@ -28,7 +37,7 @@ export default function YAxis({ domain = [0, 60], range = [0, 300] }) {
 			// })
 			.reverse()
 			.map(d => {
-				return yScale(d);
+				return isLog ? yScaleLog(d) : yScale(d);
 			});
 
 		const res = arrValues.map((d, i) => ({
