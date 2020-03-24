@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import * as d3 from 'd3';
 import { WorldDataContext } from '../contexts/WorldDataContext';
 import { XDominioContext } from '../contexts/XDominioContext';
@@ -7,6 +7,7 @@ import { CountriesContext } from '../contexts/CountriesContext';
 import { CountriesSelectionContext } from '../contexts/CountriesSelectionContext';
 import { SliderContext } from '../contexts/SliderContext';
 import { IsLogContext } from '../contexts/IsLogContext';
+import { ToolTipsContext } from '../contexts/ToolTipsContext';
 
 export default function LineChart() {
 	const { worldData, setWorldData } = useContext(WorldDataContext);
@@ -20,6 +21,10 @@ export default function LineChart() {
 	const [filterNestData, setFilterNestData] = useState([]);
 	const { sliderValue, setSliderValue } = useContext(SliderContext);
 	const { isLog, setIsLog } = useContext(IsLogContext);
+	const [itsHover, setItsHover] = useState(false);
+	const { tooltip, setToolTip } = useContext(ToolTipsContext);
+
+	const myRef = useRef();
 
 	//TODO:
 	//Filtrar nest data por dias con el valor del slider
@@ -121,8 +126,23 @@ export default function LineChart() {
 			return isLog ? yScaleLog(d.total_cases) : YScale(d.total_cases);
 		});
 
+	const numFormat = d3.format(',d');
+
 	function mouseOverHandler(d) {
-		console.log('mouseHandler', d.target);
+		setItsHover(!itsHover);
+		setToolTip({
+			isShow: true,
+			x: +d.target.attributes.cx.value,
+			y: +d.target.attributes.cy.value,
+			value: numFormat(+d.target.attributes.val.value),
+			color: d.target.attributes.fill.value
+		});
+
+		console.log('view', d.target.attributes);
+	}
+
+	function mouseOutHandler(params) {
+		setToolTip({ isShow: false });
 	}
 
 	return (
@@ -147,7 +167,7 @@ export default function LineChart() {
 					/>
 				))}
 			</g>
-			<g className='points-container'>
+			<g className='points-container' ref={myRef}>
 				{filterNestData.map((country, a) =>
 					country.values.map((row, i) => (
 						<circle
@@ -155,9 +175,15 @@ export default function LineChart() {
 							key={`${row.dia_numero}-circle`}
 							cx={xScale(row.dia_numero)}
 							cy={isLog ? yScaleLog(row.total_cases) : YScale(row.total_cases)}
-							r={country.values.length - 1 === i ? 3 : 2}
+							r={country.values.length - 1 === i ? 3 : itsHover ? 4 : 2}
 							fill={country.color ? country.color : '#d81159'}
 							onMouseOver={mouseOverHandler}
+							onMouseOut={mouseOutHandler}
+							val={row.total_cases}
+							style={{
+								cursor: 'pointer',
+								position: 'absolute'
+							}}
 						/>
 					))
 				)}

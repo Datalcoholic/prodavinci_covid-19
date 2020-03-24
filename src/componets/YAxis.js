@@ -45,7 +45,6 @@ export default function YAxis({ domain = [0, 60], range = [0, 300] }) {
 			yOffset: arrYOffset[arrYOffset.length - 1 - i]
 		}));
 
-		console.log(arrValues);
 		return res;
 		// return yScale.ticks(numberOfTicksTarget).map(value => ({
 		// 	value,

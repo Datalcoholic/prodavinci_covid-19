@@ -23,10 +23,13 @@ export default function Graphs() {
 				(d.total_cases = +d.total_cases),
 				d
 			);
-		}).then(resp => {
-			setWorldData(resp, 'promise');
-			//setWorldData(resp);
-		});
+		})
+			.then(resp => resp.filter(d => d.total_cases !== 0))
+
+			.then(resp => {
+				setWorldData(resp);
+				//setWorldData(resp);
+			});
 	}, []);
 
 	// Infected useEffect

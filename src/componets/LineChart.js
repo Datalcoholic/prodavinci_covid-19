@@ -14,6 +14,8 @@ import Select from 'react-select';
 import XAxis from './XAxis';
 import YAxis from './YAxis';
 import Lines from './Lines';
+import ToolTip from './ToolTip';
+import { ToolTipsContext } from '../contexts/ToolTipsContext';
 
 function customStyle(theme) {
 	return {
@@ -44,6 +46,12 @@ export default function LinearGrahp() {
 	const [sliderValue, setSliderValue] = useState(1);
 	const classes = useStyles();
 	const [isLog, setIsLog] = useState(false);
+	const [toolTip, setToolTip] = useState({
+		isShow: false,
+		x: 0,
+		y: 0,
+		data: {}
+	});
 
 	function handlerSliderValue(e, newValue) {
 		setSliderValue(newValue);
@@ -110,7 +118,12 @@ export default function LinearGrahp() {
 									<CountriesSelectionContext.Provider
 										value={{ countriesSelection, setCountriesSelection }}
 									>
-										<Lines />
+										<ToolTipsContext.Provider
+											value={{ ...toolTip, setToolTip }}
+										>
+											<Lines />
+											{toolTip.isShow && <ToolTip />}
+										</ToolTipsContext.Provider>
 									</CountriesSelectionContext.Provider>
 								</IsLogContext.Provider>
 							</YDominioContext.Provider>
