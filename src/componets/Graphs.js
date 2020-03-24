@@ -4,12 +4,20 @@ import BaseMap from './BaseMap';
 import Cards from './Cards';
 import { InfectedContext } from '../contexts/InfectedContext';
 import { WorldDataContext } from '../contexts/WorldDataContext';
+import { ToolTipsContext } from '../contexts/ToolTipsContext';
 import LineChart from './LineChart';
+import ToolTip from './ToolTip';
 
 export default function Graphs() {
 	const [infected, setInfected] = useState([]);
 	const [totalContagios, setTotalContagios] = useState(0);
 	const [worldData, setWorldData] = useState([]);
+	const [toolTip, setToolTip] = useState({
+		isShow: false,
+		x: 0,
+		y: 0,
+		data: {}
+	});
 
 	// WorldData useEffect
 	useEffect(() => {
@@ -57,34 +65,36 @@ export default function Graphs() {
 		<div className='grid'>
 			<h1 className='graph-title'>Distribucion de contagios confirmados</h1>
 			<InfectedContext.Provider value={{ infected, setInfected }}>
-				<BaseMap />
+				<ToolTipsContext.Provider value={{ ...toolTip, setToolTip }}>
+					<BaseMap />
 
-				<div className='cards-container'>
-					<Cards
-						total={totalContagios}
-						title={'TOTAL CONTAGIOS CONFIRMADOS:'}
-						id={'card_1'}
-						color='#ffae19'
-						WebkitTextStrokeColor='#A66C00'
-					/>
-					<Cards
-						total={0}
-						title={'TOTAL FALLECIDOS:'}
-						id={'card_2'}
-						color='#d81159'
-						WebkitTextStrokeColor='#890033'
-					/>
-					<Cards
-						total={0}
-						title={'TOTAL RECUPERADOS'}
-						id={'card_3'}
-						color='#09827e'
-						WebkitTextStrokeColor='#00514E'
-					/>
-				</div>
-				<WorldDataContext.Provider value={{ worldData, setWorldData }}>
-					<LineChart />
-				</WorldDataContext.Provider>
+					<div className='cards-container'>
+						<Cards
+							total={totalContagios}
+							title={'TOTAL CONTAGIOS CONFIRMADOS:'}
+							id={'card_1'}
+							color='#ffae19'
+							WebkitTextStrokeColor='#A66C00'
+						/>
+						<Cards
+							total={0}
+							title={'TOTAL FALLECIDOS:'}
+							id={'card_2'}
+							color='#d81159'
+							WebkitTextStrokeColor='#890033'
+						/>
+						<Cards
+							total={0}
+							title={'TOTAL RECUPERADOS'}
+							id={'card_3'}
+							color='#09827e'
+							WebkitTextStrokeColor='#00514E'
+						/>
+					</div>
+					<WorldDataContext.Provider value={{ worldData, setWorldData }}>
+						<LineChart />
+					</WorldDataContext.Provider>
+				</ToolTipsContext.Provider>
 			</InfectedContext.Provider>
 		</div>
 	);

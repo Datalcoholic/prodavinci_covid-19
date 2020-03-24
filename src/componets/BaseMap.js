@@ -6,6 +6,8 @@ import { feature } from 'topojson-client';
 import useGetEstados from '../hooks/useGetEstados';
 import getInfected from '../utilities/getInfected';
 import { InfectedContext } from '../contexts/InfectedContext';
+import { ToolTipsContext } from '../contexts/ToolTipsContext';
+import ToolTip from './ToolTip';
 
 export default function BaseMap() {
 	const [venBase, setVenBase] = useGetTopoJson('/data/Ven_base.json');
@@ -24,6 +26,9 @@ export default function BaseMap() {
 	const [infectedPerDay, setInfectedPerDay] = useState([]);
 	const [infectedPerState, setInfectedPerState] = useState([]);
 	const [centroids, setCentroids] = useState([]);
+	const [itsHover, setItsHover] = useState(false);
+	const [rad, setRad] = useState();
+	const { toolTip, setToolTip } = useContext(ToolTipsContext);
 
 	// añadir no informados
 
@@ -117,6 +122,30 @@ export default function BaseMap() {
 
 	//console.log('centroids', centroids);
 
+	//bubles mouse events handler
+
+	function mouseOverHandler2(d) {
+		setItsHover(!itsHover);
+		setToolTip({
+			isShow: true,
+			x: +d.target.attributes.cx.value,
+			y: +d.target.attributes.cy.value,
+			value: d.target.attributes.val.value,
+			color: d.target.attributes.fill.value
+		});
+
+		setRad(d.target.attributes.circleId.value);
+
+		console.log('hover', d.target.attributes.circleId.value);
+	}
+
+	function mouseOutHandler(params) {
+		setToolTip({ isShow: false });
+		setRad(false);
+	}
+
+	console.log('mapTooltip', toolTip);
+
 	return (
 		<div className='map-container'>
 			<svg
@@ -161,11 +190,19 @@ export default function BaseMap() {
 									//	className={`${d.key}_circle`}
 									cx={150}
 									cy={450}
-									r={radius(d.totalEdo)}
+									r={
+										rad === `${d.key}_circle`
+											? radius(d.totalEdo) + 4
+											: radius(d.totalEdo)
+									}
 									fill='#ffae19'
 									stroke='#A66C00'
 									strokeWidth={1.5}
 									opacity={0.4}
+									val={d.edo}
+									onMouseOut={mouseOutHandler}
+									onMouseOver={mouseOverHandler2}
+									circleId={`${d.key}_circle`}
 								></circle>
 								<text
 									key={`${d.key}_text`}
@@ -183,7 +220,7 @@ export default function BaseMap() {
 									className='text'
 									style={{
 										fill: 'black',
-										fontSize: '20px',
+										fontSize: rad === `${d.key}_circle` ? '30px' : '20px',
 										WebkitTextStroke: '1.5px #a0a0a0',
 										paintOrder: 'stroke'
 									}}
@@ -195,17 +232,37 @@ export default function BaseMap() {
 							<g key={`${d.key}-${i}`}>
 								<circle
 									key={`${d.key}_circle`}
-									cx={d.key === 'vargas' ? d.centroid[0] + 10 : d.centroid[0]} // moviendo el estado vargas para evitar overlap
+									cx={
+										d.key === 'vargas'
+											? d.centroid[0] + 10
+											: d.key === 'zulia'
+											? d.centroid[0] - 20
+											: d.centroid[0]
+									} // moviendo el estado vargas para evitar overlap
 									cy={d.centroid[1]}
-									r={radius(d.totalEdo)}
+									r={
+										rad === `${d.key}_circle`
+											? radius(d.totalEdo) + 4
+											: radius(d.totalEdo)
+									}
 									fill='#ffae19'
 									stroke='#A66C00'
 									strokeWidth={1.5}
 									opacity={0.4}
+									val={d.key}
+									onMouseOut={mouseOutHandler}
+									onMouseOver={mouseOverHandler2}
+									circleId={`${d.key}_circle`}
 								></circle>
 								<text
 									key={`${d.key}_text`}
-									x={d.key === 'vargas' ? d.centroid[0] + 10 : d.centroid[0]}
+									x={
+										d.key === 'vargas'
+											? d.centroid[0] + 10
+											: d.key === 'zulia'
+											? d.centroid[0] - 20
+											: d.centroid[0]
+									}
 									y={d.centroid[1] + 4}
 									className='text'
 									style={{
@@ -217,6 +274,8 @@ export default function BaseMap() {
 								>
 									{d.totalEdo}
 								</text>
+								toolTip.isShow&&
+								<ToolTip />
 							</g>
 						);
 					})}

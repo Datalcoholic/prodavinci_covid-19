@@ -9,15 +9,15 @@ export default function ToolTip() {
 	return (
 		<foreignObject
 			transform={`translate(${x} ${y - 30})`}
-			width={50}
-			height={20}
+			width={60}
+			height={15}
 		>
 			<g className='tooltip'>
 				<div
 					className='tool-tip-value'
 					// height={15}
 					// width={60}
-					style={{ textAlign: 'center', color: color }}
+					style={{ textAlign: 'center', color: color ? color : 'black' }}
 				>
 					{value}
 				</div>

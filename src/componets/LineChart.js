@@ -46,12 +46,7 @@ export default function LinearGrahp() {
 	const [sliderValue, setSliderValue] = useState(1);
 	const classes = useStyles();
 	const [isLog, setIsLog] = useState(false);
-	const [toolTip, setToolTip] = useState({
-		isShow: false,
-		x: 0,
-		y: 0,
-		data: {}
-	});
+	const { toolTip, setToolTip } = useContext(ToolTipsContext);
 
 	function handlerSliderValue(e, newValue) {
 		setSliderValue(newValue);
@@ -106,7 +101,7 @@ export default function LinearGrahp() {
 						<svg
 							width={1050}
 							height={400}
-							viewBox='-50 -10  1050 350'
+							viewBox='-50 -10  1050 300'
 							style={{ backgroundColor: '#e0e0e0', borderRadius: 10 }}
 						>
 							<YDominioContext.Provider value={{ totalMax, setTotalMax }}>
@@ -118,12 +113,8 @@ export default function LinearGrahp() {
 									<CountriesSelectionContext.Provider
 										value={{ countriesSelection, setCountriesSelection }}
 									>
-										<ToolTipsContext.Provider
-											value={{ ...toolTip, setToolTip }}
-										>
-											<Lines />
-											{toolTip.isShow && <ToolTip />}
-										</ToolTipsContext.Provider>
+										<Lines />
+										toolTip.isShow && <ToolTip />
 									</CountriesSelectionContext.Provider>
 								</IsLogContext.Provider>
 							</YDominioContext.Provider>

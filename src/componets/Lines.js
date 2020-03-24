@@ -23,6 +23,7 @@ export default function LineChart() {
 	const { isLog, setIsLog } = useContext(IsLogContext);
 	const [itsHover, setItsHover] = useState(false);
 	const { tooltip, setToolTip } = useContext(ToolTipsContext);
+	const [rad, setRad] = useState(2);
 
 	const myRef = useRef();
 
@@ -138,11 +139,12 @@ export default function LineChart() {
 			color: d.target.attributes.fill.value
 		});
 
-		console.log('view', d.target.attributes);
+		setRad(d.target.attributes.circleId.value);
 	}
 
 	function mouseOutHandler(params) {
 		setToolTip({ isShow: false });
+		setRad(false);
 	}
 
 	return (
@@ -173,17 +175,20 @@ export default function LineChart() {
 						<circle
 							className={`pais-${a}-circle`}
 							key={`${row.dia_numero}-circle`}
+							circleId={`${row.dia_numero}-circle`}
 							cx={xScale(row.dia_numero)}
 							cy={isLog ? yScaleLog(row.total_cases) : YScale(row.total_cases)}
-							r={country.values.length - 1 === i ? 3 : itsHover ? 4 : 2}
+							r={
+								country.values.length - 1 <= i
+									? 3
+									: rad === `${row.dia_numero}-circle`
+									? 4
+									: 2
+							}
 							fill={country.color ? country.color : '#d81159'}
 							onMouseOver={mouseOverHandler}
 							onMouseOut={mouseOutHandler}
 							val={row.total_cases}
-							style={{
-								cursor: 'pointer',
-								position: 'absolute'
-							}}
 						/>
 					))
 				)}

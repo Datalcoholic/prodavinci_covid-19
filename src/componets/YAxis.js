@@ -60,8 +60,8 @@ export default function YAxis({ domain = [0, 60], range = [0, 300] }) {
 			<g className='y-axis-container'>
 				{ticks.map(({ value, yOffset }) =>
 					value !== 0 ? (
-						<g key={value} transform={`translate(0, ${yOffset})`}>
-							<text style={{ fontSize: '12px', textAnchor: 'middle' }}>
+						<g key={value} transform={`translate(-5, ${yOffset})`}>
+							<text style={{ fontSize: '12px', textAnchor: 'end' }}>
 								{format(value)}
 							</text>
 						</g>
