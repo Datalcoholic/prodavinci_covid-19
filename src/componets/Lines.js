@@ -8,6 +8,12 @@ import { CountriesSelectionContext } from '../contexts/CountriesSelectionContext
 import { SliderContext } from '../contexts/SliderContext';
 import { IsLogContext } from '../contexts/IsLogContext';
 import { ToolTipsContext } from '../contexts/ToolTipsContext';
+import {
+	TcContext,
+	TcnContext,
+	DcContext,
+	DcnContext
+} from '../contexts/ButtonsContext';
 
 export default function LineChart() {
 	const { worldData, setWorldData } = useContext(WorldDataContext);
@@ -24,6 +30,10 @@ export default function LineChart() {
 	const [itsHover, setItsHover] = useState(false);
 	const { tooltip, setToolTip } = useContext(ToolTipsContext);
 	const [rad, setRad] = useState(2);
+	const { isTc, setIsTc } = useContext(TcContext);
+	const { isTcn, setIsTcn } = useContext(TcnContext);
+	const { isDc, setIsDc } = useContext(DcContext);
+	const { isDcn, setIsDcn } = useContext(DcnContext);
 
 	const myRef = useRef();
 
@@ -88,10 +98,24 @@ export default function LineChart() {
 	// MAximo de total_cases
 	useEffect(() => {
 		const totalCasesMax = d3.max(
-			filterNestData.map(d => d3.max(d.values.map(d => d.total_cases)))
+			filterNestData.map(d =>
+				d3.max(
+					d.values.map(d =>
+						isTc
+							? d.total_cases
+							: isTcn
+							? d.new_cases
+							: isDc
+							? d.total_deaths
+							: isDcn
+							? d.new_deaths
+							: d.total_deaths
+					)
+				)
+			)
 		);
 		setTotalMax(totalCasesMax);
-	}, [filterNestData]);
+	}, [filterNestData, isTc, isTcn, isDc, isDcn]);
 
 	//Lista de paises
 	useEffect(() => {
@@ -103,6 +127,8 @@ export default function LineChart() {
 
 		setCountries(countriesList);
 	}, [worldData]);
+
+	console.log('maximoY', totalMax);
 
 	const xScale = d3
 		.scaleLinear()
@@ -124,7 +150,25 @@ export default function LineChart() {
 			return xScale(d.dia_numero);
 		})
 		.y(d => {
-			return isLog ? yScaleLog(d.total_cases) : YScale(d.total_cases);
+			return isTc
+				? isLog
+					? yScaleLog(d.total_cases)
+					: YScale(d.total_cases)
+				: isTcn
+				? isLog
+					? yScaleLog(d.new_cases === 0 ? 1 : d.new_cases)
+					: YScale(d.new_cases)
+				: isDc
+				? isLog
+					? yScaleLog(d.total_deaths === 0 ? 1 : d.total_deaths)
+					: YScale(d.total_deaths)
+				: isDcn
+				? isLog
+					? yScaleLog(d.new_deaths === 0 ? 1 : d.new_deaths)
+					: YScale(d.new_deaths)
+				: isLog
+				? yScaleLog(d.total_cases)
+				: YScale(d.total_cases);
 		});
 
 	const numFormat = d3.format(',d');
@@ -177,7 +221,27 @@ export default function LineChart() {
 							key={`${row.dia_numero}-circle`}
 							circleId={`${row.dia_numero}-circle`}
 							cx={xScale(row.dia_numero)}
-							cy={isLog ? yScaleLog(row.total_cases) : YScale(row.total_cases)}
+							cy={
+								isTc
+									? isLog
+										? yScaleLog(row.total_cases)
+										: YScale(row.total_cases)
+									: isTcn
+									? isLog
+										? yScaleLog(row.new_cases === 0 ? 1 : row.new_cases)
+										: YScale(row.new_cases)
+									: isDc
+									? isLog
+										? yScaleLog(row.total_deaths === 0 ? 1 : row.total_deaths)
+										: YScale(row.total_deaths)
+									: isDcn
+									? isLog
+										? yScaleLog(row.new_deaths === 0 ? 1 : row.new_deaths)
+										: YScale(row.new_deaths)
+									: isLog
+									? yScaleLog(row.total_cases)
+									: YScale(row.total_cases)
+							}
 							r={
 								country.values.length - 1 <= i
 									? 3
@@ -200,7 +264,27 @@ export default function LineChart() {
 							<text
 								key={`${row.dia_numero}-text`}
 								x={xScale(row.dia_numero) + 10}
-								y={isLog ? yScaleLog(row.total_cases) : YScale(row.total_cases)}
+								y={
+									isTc
+										? isLog
+											? yScaleLog(row.total_cases)
+											: YScale(row.total_cases)
+										: isTcn
+										? isLog
+											? yScaleLog(row.new_cases === 0 ? 1 : row.new_cases)
+											: YScale(row.new_cases)
+										: isDc
+										? isLog
+											? yScaleLog(row.total_deaths === 0 ? 1 : row.total_deaths)
+											: YScale(row.total_deaths)
+										: isDcn
+										? isLog
+											? yScaleLog(row.new_deaths === 0 ? 1 : row.new_deaths)
+											: YScale(row.new_deaths)
+										: isLog
+										? yScaleLog(row.total_cases)
+										: YScale(row.total_cases)
+								}
 								fill={country.color ? country.color : '#d81159'}
 								style={{
 									fontSize: '12px',

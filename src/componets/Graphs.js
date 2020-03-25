@@ -6,7 +6,6 @@ import { InfectedContext } from '../contexts/InfectedContext';
 import { WorldDataContext } from '../contexts/WorldDataContext';
 import { ToolTipsContext } from '../contexts/ToolTipsContext';
 import LineChart from './LineChart';
-import ToolTip from './ToolTip';
 
 export default function Graphs() {
 	const [infected, setInfected] = useState([]);
@@ -29,6 +28,7 @@ export default function Graphs() {
 				(d.new_cases = +d.new_cases),
 				(d.new_deaths = +d.new_deaths),
 				(d.total_cases = +d.total_cases),
+				(d.total_deaths = +d.total_deaths),
 				d
 			);
 		})

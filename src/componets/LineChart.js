@@ -16,6 +16,12 @@ import YAxis from './YAxis';
 import Lines from './Lines';
 import ToolTip from './ToolTip';
 import { ToolTipsContext } from '../contexts/ToolTipsContext';
+import {
+	TcContext,
+	TcnContext,
+	DcContext,
+	DcnContext
+} from '../contexts/ButtonsContext';
 
 function customStyle(theme) {
 	return {
@@ -47,6 +53,10 @@ export default function LinearGrahp() {
 	const classes = useStyles();
 	const [isLog, setIsLog] = useState(false);
 	const { toolTip, setToolTip } = useContext(ToolTipsContext);
+	const [isTc, setIsTc] = useState(true);
+	const [isTcn, setIsTcn] = useState(false);
+	const [isDc, setIsDc] = useState(false);
+	const [isDcn, setIsDcn] = useState(false);
 
 	function handlerSliderValue(e, newValue) {
 		setSliderValue(newValue);
@@ -54,14 +64,48 @@ export default function LinearGrahp() {
 
 	function switchHandler() {
 		setIsLog(!isLog);
-		console.log('swicht :', isLog);
+	}
+
+	function handlerClickTc(params) {
+		setIsTc(true);
+		setIsTcn(false);
+		setIsDc(false);
+		setIsDcn(false);
+	}
+	function handlerClickTcn(params) {
+		setIsTcn(true);
+		setIsTc(false);
+		setIsDc(false);
+		setIsDcn(false);
+	}
+	function handlerClickDc(params) {
+		setIsTcn(false);
+		setIsTc(false);
+		setIsDc(true);
+		setIsDcn(false);
+	}
+	function handlerClickDcn(params) {
+		setIsTcn(false);
+		setIsTc(false);
+		setIsDc(false);
+		setIsDcn(true);
 	}
 
 	return (
 		<div className='linear-container'>
 			<div className='tabs-container'>
-				<button className='tc'>Total Contagios Confirmados</button>
-				<button className='tcn'>total Casos nuevos</button>
+				<button className='tc' onClick={handlerClickTc}>
+					Contagios Confirmados
+				</button>
+				<button className='tcn' onClick={handlerClickTcn}>
+					Casos nuevos
+				</button>
+				<button className='dc' onClick={handlerClickDc}>
+					Decesos Confirmados
+				</button>
+				<button className='dcn' onClick={handlerClickDcn}>
+					nuevos Decesos
+				</button>
 			</div>
 			<CountriesContext.Provider value={{ countries, setCountries }}>
 				<XDominioContext.Provider value={{ maxD, setMaxD }}>
@@ -105,18 +149,31 @@ export default function LinearGrahp() {
 							style={{ backgroundColor: '#e0e0e0', borderRadius: 10 }}
 						>
 							<YDominioContext.Provider value={{ totalMax, setTotalMax }}>
-								<SliderContext.Provider value={{ sliderValue, setSliderValue }}>
-									<XAxis />
-								</SliderContext.Provider>
-								<IsLogContext.Provider value={{ isLog, setIsLog }}>
-									<YAxis />
-									<CountriesSelectionContext.Provider
-										value={{ countriesSelection, setCountriesSelection }}
-									>
-										<Lines />
-										toolTip.isShow && <ToolTip />
-									</CountriesSelectionContext.Provider>
-								</IsLogContext.Provider>
+								<TcContext.Provider value={{ isTc, setIsTc }}>
+									<TcnContext.Provider value={{ isTcn, setIsTcn }}>
+										<DcContext.Provider value={{ isDc, setIsDc }}>
+											<DcnContext.Provider value={{ isDcn, setIsDcn }}>
+												<SliderContext.Provider
+													value={{ sliderValue, setSliderValue }}
+												>
+													<XAxis />
+												</SliderContext.Provider>
+												<IsLogContext.Provider value={{ isLog, setIsLog }}>
+													<YAxis />
+													<CountriesSelectionContext.Provider
+														value={{
+															countriesSelection,
+															setCountriesSelection
+														}}
+													>
+														<Lines />
+														toolTip.isShow && <ToolTip />
+													</CountriesSelectionContext.Provider>
+												</IsLogContext.Provider>
+											</DcnContext.Provider>
+										</DcContext.Provider>
+									</TcnContext.Provider>
+								</TcContext.Provider>
 							</YDominioContext.Provider>
 						</svg>
 					</div>
