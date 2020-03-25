@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useReducer } from 'react';
 import { WorldDataContext } from '../contexts/WorldDataContext';
 import { XDominioContext } from '../contexts/XDominioContext';
 import { YDominioContext } from '../contexts/YDominioContext';
@@ -22,6 +22,22 @@ import {
 	DcContext,
 	DcnContext
 } from '../contexts/ButtonsContext';
+import { ApiContext } from '../contexts/ApiContext';
+
+function reducer(state, action) {
+	switch (action.type) {
+		case 'TC':
+			return '_cases';
+		case 'TCN':
+			return '_cases_cum';
+		case 'DC':
+			return '_deaths';
+		case 'DCN':
+			return '_deaths_cum';
+		default:
+			return '_cases';
+	}
+}
 
 function customStyle(theme) {
 	return {
@@ -45,8 +61,7 @@ export default function LinearGrahp() {
 	const [totalMax, setTotalMax] = useState();
 	const [countries, setCountries] = useState([]);
 	const [countriesSelection, setCountriesSelection] = useState([
-		{ value: 'world', label: 'world' },
-		{ value: 'venezuela', label: 'venezuela' }
+		{ value: 'VE', label: 'Venezuela' }
 	]);
 
 	const [sliderValue, setSliderValue] = useState(1);
@@ -57,6 +72,8 @@ export default function LinearGrahp() {
 	const [isTcn, setIsTcn] = useState(false);
 	const [isDc, setIsDc] = useState(false);
 	const [isDcn, setIsDcn] = useState(false);
+
+	const [api, dispatch] = useReducer(reducer, '_cases');
 
 	function handlerSliderValue(e, newValue) {
 		setSliderValue(newValue);
@@ -71,24 +88,29 @@ export default function LinearGrahp() {
 		setIsTcn(false);
 		setIsDc(false);
 		setIsDcn(false);
+
+		dispatch({ type: 'TC' });
 	}
 	function handlerClickTcn(params) {
 		setIsTcn(true);
 		setIsTc(false);
 		setIsDc(false);
 		setIsDcn(false);
+		dispatch({ type: 'TCN' });
 	}
 	function handlerClickDc(params) {
 		setIsTcn(false);
 		setIsTc(false);
 		setIsDc(true);
 		setIsDcn(false);
+		dispatch({ type: 'DC' });
 	}
 	function handlerClickDcn(params) {
 		setIsTcn(false);
 		setIsTc(false);
 		setIsDc(false);
 		setIsDcn(true);
+		dispatch({ type: 'DCN' });
 	}
 
 	return (
@@ -120,10 +142,7 @@ export default function LinearGrahp() {
 								options={countries}
 								theme={customStyle}
 								isMulti
-								defaultValue={[
-									{ value: 'world', label: 'world' },
-									{ value: 'venezuela', label: 'venezuela' }
-								]}
+								defaultValue={[{ value: 'VE', label: 'Venezuela' }]}
 								placeholder='Add Country...'
 								onChange={setCountriesSelection}
 							/>
@@ -153,23 +172,25 @@ export default function LinearGrahp() {
 									<TcnContext.Provider value={{ isTcn, setIsTcn }}>
 										<DcContext.Provider value={{ isDc, setIsDc }}>
 											<DcnContext.Provider value={{ isDcn, setIsDcn }}>
-												<SliderContext.Provider
-													value={{ sliderValue, setSliderValue }}
-												>
-													<XAxis />
-												</SliderContext.Provider>
-												<IsLogContext.Provider value={{ isLog, setIsLog }}>
-													<YAxis />
-													<CountriesSelectionContext.Provider
-														value={{
-															countriesSelection,
-															setCountriesSelection
-														}}
+												<ApiContext.Provider value={{ api, dispatch }}>
+													<SliderContext.Provider
+														value={{ sliderValue, setSliderValue }}
 													>
-														<Lines />
-														toolTip.isShow && <ToolTip />
-													</CountriesSelectionContext.Provider>
-												</IsLogContext.Provider>
+														<XAxis />
+													</SliderContext.Provider>
+													<IsLogContext.Provider value={{ isLog, setIsLog }}>
+														<YAxis />
+														<CountriesSelectionContext.Provider
+															value={{
+																countriesSelection,
+																setCountriesSelection
+															}}
+														>
+															<Lines />
+															toolTip.isShow && <ToolTip />
+														</CountriesSelectionContext.Provider>
+													</IsLogContext.Provider>
+												</ApiContext.Provider>
 											</DcnContext.Provider>
 										</DcContext.Provider>
 									</TcnContext.Provider>

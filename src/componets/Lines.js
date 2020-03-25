@@ -14,6 +14,9 @@ import {
 	DcContext,
 	DcnContext
 } from '../contexts/ButtonsContext';
+import { ApiContext } from '../contexts/ApiContext';
+
+import GetCountryData from '../utilities/GetCountryData';
 
 export default function LineChart() {
 	const { worldData, setWorldData } = useContext(WorldDataContext);
@@ -34,6 +37,52 @@ export default function LineChart() {
 	const { isTcn, setIsTcn } = useContext(TcnContext);
 	const { isDc, setIsDc } = useContext(DcContext);
 	const { isDcn, setIsDcn } = useContext(DcnContext);
+	const [ecdcData, setEcdcData] = useState([]);
+	const { api, dispatch } = useContext(ApiContext);
+
+	//FetchData
+	useEffect(() => {
+		// const urls = [
+		// 	'https://api.datadrum.com/json/cv_cases.Colombia',
+		// 	'https://api.datadrum.com/json/cv_cases.United'
+		// ];
+
+		const urls = countriesSelection.map(
+			sel => `https://api.datadrum.com/json/cv.${sel.value}${api}`
+		);
+
+		const poolData = [];
+		urls.forEach(url => {
+			const myRequest = new Request(url, {
+				method: 'GET',
+				headers: new Headers({
+					token: 'covid19'
+				})
+			});
+
+			fetch(myRequest)
+				.then(resp => resp.json())
+				.then(resp => resp.data)
+				.then((resp, i) =>
+					resp.map(
+						(d, i) => (
+							(d.dia_numero = i),
+							(d.total_cases =
+								d[Object.keys(d)[1]] === null ? 0 : d[Object.keys(d)[1]]),
+							(d.location = Object.keys(d)[1]
+								.split('___')[1]
+								.split('_')[0]),
+							d
+						)
+					)
+				)
+
+				.then(resp => poolData.push(resp))
+				.then(resp => setEcdcData(poolData.flat()))
+				.then(resp => console.log('api', [...poolData]))
+				.catch(error => console.log(error));
+		});
+	}, [countriesSelection, api]);
 
 	const myRef = useRef();
 
@@ -78,14 +127,15 @@ export default function LineChart() {
 			.key(d => {
 				return d.location;
 			})
-			.entries(worldData);
+			.entries(ecdcData);
 
-		data.forEach(country => {
-			return country.values.map((d, i) => ((d.dia_numero = i), d));
-		});
+		//TODO:
+		// Agregar el nombre del pais
 
 		setNestWorldData(data);
-	}, [worldData]);
+	}, [ecdcData]);
+
+	console.log('nestWorldData', nestWorldData);
 
 	// Dias Maximo
 	useEffect(() => {
@@ -119,16 +169,20 @@ export default function LineChart() {
 
 	//Lista de paises
 	useEffect(() => {
-		const countriesList = [...new Set(worldData.map(d => d.location))].map(
-			d => {
-				return { value: d.toLowerCase(), label: d };
-			}
-		);
+		// const countriesList = [...new Set(worldData.map(d => d.location))].map(
+		// 	d => {
+		// 		return { value: d.toLowerCase(), label: d };
+		// 	}
+		// );
 
-		setCountries(countriesList);
-	}, [worldData]);
-
-	console.log('maximoY', totalMax);
+		d3.json('/data/country_list.json')
+			.then(data => {
+				return data.map(d => {
+					return { value: d.code, label: d.name };
+				});
+			})
+			.then(resp => setCountries(resp));
+	}, []);
 
 	const xScale = d3
 		.scaleLinear()
