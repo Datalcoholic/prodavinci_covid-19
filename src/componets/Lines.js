@@ -33,10 +33,10 @@ export default function LineChart() {
 	const [itsHover, setItsHover] = useState(false);
 	const { tooltip, setToolTip } = useContext(ToolTipsContext);
 	const [rad, setRad] = useState(2);
-	const { isTc, setIsTc } = useContext(TcContext);
-	const { isTcn, setIsTcn } = useContext(TcnContext);
-	const { isDc, setIsDc } = useContext(DcContext);
-	const { isDcn, setIsDcn } = useContext(DcnContext);
+	// const { isTc, setIsTc } = useContext(TcContext);
+	// const { isTcn, setIsTcn } = useContext(TcnContext);
+	// const { isDc, setIsDc } = useContext(DcContext);
+	// const { isDcn, setIsDcn } = useContext(DcnContext);
 	const [ecdcData, setEcdcData] = useState([]);
 	const { api, dispatch } = useContext(ApiContext);
 
@@ -63,12 +63,16 @@ export default function LineChart() {
 			fetch(myRequest)
 				.then(resp => resp.json())
 				.then(resp => resp.data)
+				.then(resp =>
+					resp.filter(
+						d => d[Object.keys(d)[1]] !== 0 && d[Object.keys(d)[1]] !== null
+					)
+				)
 				.then((resp, i) =>
 					resp.map(
 						(d, i) => (
 							(d.dia_numero = i),
-							(d.total_cases =
-								d[Object.keys(d)[1]] === null ? 0 : d[Object.keys(d)[1]]),
+							(d.total_cases = d[Object.keys(d)[1]]),
 							(d.location = Object.keys(d)[1]
 								.split('___')[1]
 								.split('_')[0]),
@@ -79,11 +83,12 @@ export default function LineChart() {
 
 				.then(resp => poolData.push(resp))
 				.then(resp => setEcdcData(poolData.flat()))
-				.then(resp => console.log('api', [...poolData]))
+				.then(resp => console.log('api', poolData))
 				.catch(error => console.log(error));
 		});
 	}, [countriesSelection, api]);
 
+	// console.log('ecdcData', ecdcData);
 	const myRef = useRef();
 
 	//TODO:
@@ -100,42 +105,51 @@ export default function LineChart() {
 	];
 
 	//Add colors to filterNestData
-	useEffect(() => {
-		const col = filterNestData.map(
-			(country, i) => (
-				(country.color = filterNestData.length - 1 > i ? colors[i] : '#626263'),
-				country
-			)
-		);
+	// useEffect(() => {
+	// 	const col = filterNestData.map(
+	// 		(country, i) => (
+	// 			(country.color = filterNestData.length - 1 > i ? colors[i] : '#626263'),
+	// 			country
+	// 		)
+	// 	);
 
-		setFilterNestData({ ...filterNestData, col });
-	}, [countriesSelection]);
-
+	// 	setFilterNestData({ ...filterNestData, col });
+	// }, [countriesSelection]);
+	// console.log('filterNestDatacolor', filterNestData);
 	// filter data set by countriesSelections
-	useEffect(() => {
-		const filteredData = nestWorldData.filter(country =>
-			countriesSelection.find(d => country.key.toLowerCase() === d.value)
-		);
+	// useEffect(() => {
+	// 	const filteredData = nestWorldData.filter(country =>
+	// 		countriesSelection.find(d => country.key.toLowerCase() === d.value)
+	// 	);
 
-		setFilterNestData(filteredData);
-	}, [countriesSelection, nestWorldData, sliderValue]);
+	// 	setFilterNestData(filteredData);
+	// }, [countriesSelection, nestWorldData, sliderValue]);
 
-	// Nest world Data
+	// Nest ecdc Data
 	useEffect(() => {
+		const filterByDays = ecdcData.filter(d => d.dia_numero <= sliderValue);
+
 		const data = d3
 			.nest()
 			.key(d => {
 				return d.location;
 			})
-			.entries(ecdcData);
+			.entries(filterByDays);
 
-		//TODO:
-		// Agregar el nombre del pais
+		data.map(
+			(d, i) => (
+				(d.location_2 = countries.find(a => a.value === d.key).label),
+				(d.color = data.length - 1 > i ? colors[i] : '#626263'),
+				d
+			)
+		);
 
-		setNestWorldData(data);
-	}, [ecdcData]);
+		setFilterNestData(data);
+		// data.map(country => country.value.filter(d => d.dia_numero <= sliderValue));
+	}, [ecdcData, countries, sliderValue]);
 
-	console.log('nestWorldData', nestWorldData);
+	console.log('filterNestData', filterNestData);
+	console.log('filterDays', sliderValue);
 
 	// Dias Maximo
 	useEffect(() => {
@@ -143,29 +157,15 @@ export default function LineChart() {
 			filterNestData.map(d => d3.max(d.values.map(d => d.dia_numero)))
 		);
 		setMaxD(maxD);
-	}, [filterNestData]);
+	}, [filterNestData, setMaxD]);
 
 	// MAximo de total_cases
 	useEffect(() => {
 		const totalCasesMax = d3.max(
-			filterNestData.map(d =>
-				d3.max(
-					d.values.map(d =>
-						isTc
-							? d.total_cases
-							: isTcn
-							? d.new_cases
-							: isDc
-							? d.total_deaths
-							: isDcn
-							? d.new_deaths
-							: d.total_deaths
-					)
-				)
-			)
+			filterNestData.map(d => d3.max(d.values.map(d => d.total_cases)))
 		);
 		setTotalMax(totalCasesMax);
-	}, [filterNestData, isTc, isTcn, isDc, isDcn]);
+	}, [filterNestData, setTotalMax]);
 
 	//Lista de paises
 	useEffect(() => {
@@ -204,25 +204,7 @@ export default function LineChart() {
 			return xScale(d.dia_numero);
 		})
 		.y(d => {
-			return isTc
-				? isLog
-					? yScaleLog(d.total_cases)
-					: YScale(d.total_cases)
-				: isTcn
-				? isLog
-					? yScaleLog(d.new_cases === 0 ? 1 : d.new_cases)
-					: YScale(d.new_cases)
-				: isDc
-				? isLog
-					? yScaleLog(d.total_deaths === 0 ? 1 : d.total_deaths)
-					: YScale(d.total_deaths)
-				: isDcn
-				? isLog
-					? yScaleLog(d.new_deaths === 0 ? 1 : d.new_deaths)
-					: YScale(d.new_deaths)
-				: isLog
-				? yScaleLog(d.total_cases)
-				: YScale(d.total_cases);
+			return isLog ? yScaleLog(d.total_cases) : YScale(d.total_cases);
 		});
 
 	const numFormat = d3.format(',d');
@@ -275,27 +257,7 @@ export default function LineChart() {
 							key={`${row.dia_numero}-circle`}
 							circleId={`${row.dia_numero}-circle`}
 							cx={xScale(row.dia_numero)}
-							cy={
-								isTc
-									? isLog
-										? yScaleLog(row.total_cases)
-										: YScale(row.total_cases)
-									: isTcn
-									? isLog
-										? yScaleLog(row.new_cases === 0 ? 1 : row.new_cases)
-										: YScale(row.new_cases)
-									: isDc
-									? isLog
-										? yScaleLog(row.total_deaths === 0 ? 1 : row.total_deaths)
-										: YScale(row.total_deaths)
-									: isDcn
-									? isLog
-										? yScaleLog(row.new_deaths === 0 ? 1 : row.new_deaths)
-										: YScale(row.new_deaths)
-									: isLog
-									? yScaleLog(row.total_cases)
-									: YScale(row.total_cases)
-							}
+							cy={isLog ? yScaleLog(row.total_cases) : YScale(row.total_cases)}
 							r={
 								country.values.length - 1 <= i
 									? 3
@@ -318,27 +280,7 @@ export default function LineChart() {
 							<text
 								key={`${row.dia_numero}-text`}
 								x={xScale(row.dia_numero) + 10}
-								y={
-									isTc
-										? isLog
-											? yScaleLog(row.total_cases)
-											: YScale(row.total_cases)
-										: isTcn
-										? isLog
-											? yScaleLog(row.new_cases === 0 ? 1 : row.new_cases)
-											: YScale(row.new_cases)
-										: isDc
-										? isLog
-											? yScaleLog(row.total_deaths === 0 ? 1 : row.total_deaths)
-											: YScale(row.total_deaths)
-										: isDcn
-										? isLog
-											? yScaleLog(row.new_deaths === 0 ? 1 : row.new_deaths)
-											: YScale(row.new_deaths)
-										: isLog
-										? yScaleLog(row.total_cases)
-										: YScale(row.total_cases)
-								}
+								y={isLog ? yScaleLog(row.total_cases) : YScale(row.total_cases)}
 								fill={country.color ? country.color : '#d81159'}
 								style={{
 									fontSize: '12px',
@@ -348,7 +290,7 @@ export default function LineChart() {
 									paintOrder: 'stroke'
 								}}
 							>
-								{row.location}
+								{country.location_2}
 							</text>
 						</g>
 					) : (

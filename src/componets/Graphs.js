@@ -43,7 +43,7 @@ export default function Graphs() {
 	// Infected useEffect
 	useEffect(() => {
 		const date = d3.timeParse('%m/%d/%Y');
-		d3.csv('data/cov-19 ven - Sheet1.csv', d => {
+		d3.csv('/data/cov-19 ven - Sheet1.csv', d => {
 			return {
 				fecha: date(d.fecha),
 				nacionalidad: d.nacionalidad,

@@ -135,8 +135,6 @@ export default function BaseMap() {
 		});
 
 		setRad(d.target.attributes.circleId.value);
-
-		console.log('hover', d.target.attributes.circleId.value);
 	}
 
 	function mouseOutHandler(params) {
@@ -144,14 +142,14 @@ export default function BaseMap() {
 		setRad(false);
 	}
 
-	console.log('mapTooltip', toolTip);
-
 	return (
 		<div className='map-container'>
 			<svg
 				viewBox={`0 0 ${WH.width} ${WH.height}`}
 				//style={{ backgroundColor: '#f2f2f2' }}
 			>
+				toolTip.isShow&&
+				<ToolTip />
 				<g className='edos'>
 					{edos.map(d => {
 						if (d.properties.NAME_1 === 'no informado') {
@@ -172,7 +170,6 @@ export default function BaseMap() {
 						}
 					})}
 				</g>
-
 				<g className='basemap'>
 					<path
 						d={geoGenerator(venBase)}
@@ -180,7 +177,6 @@ export default function BaseMap() {
 						style={{ stroke: '#626263', strokeWidth: 1.2, fill: 'none' }}
 					/>
 				</g>
-
 				<g className='bubbles'>
 					{centroids.map((d, i) => {
 						return d.properties.NAME_1 === 'no informado' ? (
@@ -274,8 +270,6 @@ export default function BaseMap() {
 								>
 									{d.totalEdo}
 								</text>
-								toolTip.isShow&&
-								<ToolTip />
 							</g>
 						);
 					})}

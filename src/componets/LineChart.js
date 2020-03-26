@@ -27,15 +27,15 @@ import { ApiContext } from '../contexts/ApiContext';
 function reducer(state, action) {
 	switch (action.type) {
 		case 'TC':
-			return '_cases';
-		case 'TCN':
 			return '_cases_cum';
-		case 'DC':
-			return '_deaths';
-		case 'DCN':
-			return '_deaths_cum';
-		default:
+		case 'TCN':
 			return '_cases';
+		case 'DC':
+			return '_deaths_cum';
+		case 'DCN':
+			return '_deaths';
+		default:
+			return '_cases_cum';
 	}
 }
 
@@ -64,7 +64,7 @@ export default function LinearGrahp() {
 		{ value: 'VE', label: 'Venezuela' }
 	]);
 
-	const [sliderValue, setSliderValue] = useState(1);
+	const [sliderValue, setSliderValue] = useState(60);
 	const classes = useStyles();
 	const [isLog, setIsLog] = useState(false);
 	const { toolTip, setToolTip } = useContext(ToolTipsContext);
@@ -73,7 +73,7 @@ export default function LinearGrahp() {
 	const [isDc, setIsDc] = useState(false);
 	const [isDcn, setIsDcn] = useState(false);
 
-	const [api, dispatch] = useReducer(reducer, '_cases');
+	const [api, dispatch] = useReducer(reducer, '_cases_cum');
 
 	function handlerSliderValue(e, newValue) {
 		setSliderValue(newValue);
@@ -153,7 +153,7 @@ export default function LinearGrahp() {
 								aria-label='Dias'
 								aria-valuetext='Dias'
 								min={1}
-								max={maxD}
+								max={365}
 								onChange={handlerSliderValue}
 								valueLabelDisplay='off'
 							/>
@@ -177,19 +177,20 @@ export default function LinearGrahp() {
 														value={{ sliderValue, setSliderValue }}
 													>
 														<XAxis />
+
+														<IsLogContext.Provider value={{ isLog, setIsLog }}>
+															<YAxis />
+															<CountriesSelectionContext.Provider
+																value={{
+																	countriesSelection,
+																	setCountriesSelection
+																}}
+															>
+																<Lines />
+																toolTip.isShow && <ToolTip />
+															</CountriesSelectionContext.Provider>
+														</IsLogContext.Provider>
 													</SliderContext.Provider>
-													<IsLogContext.Provider value={{ isLog, setIsLog }}>
-														<YAxis />
-														<CountriesSelectionContext.Provider
-															value={{
-																countriesSelection,
-																setCountriesSelection
-															}}
-														>
-															<Lines />
-															toolTip.isShow && <ToolTip />
-														</CountriesSelectionContext.Provider>
-													</IsLogContext.Provider>
 												</ApiContext.Provider>
 											</DcnContext.Provider>
 										</DcContext.Provider>
