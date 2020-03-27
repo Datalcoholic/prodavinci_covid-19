@@ -9,7 +9,11 @@ import { IsLogContext } from '../contexts/IsLogContext';
 import * as d3 from 'd3';
 import Slider from '@material-ui/core/Slider';
 import Switch from '@material-ui/core/Switch';
-import { makeStyles } from '@material-ui/core/styles';
+import {
+	makeStyles,
+	ThemeProvider,
+	createMuiTheme
+} from '@material-ui/core/styles';
 import Select from 'react-select';
 import XAxis from './XAxis';
 import YAxis from './YAxis';
@@ -50,21 +54,48 @@ function customStyle(theme) {
 	};
 }
 
+const theme = createMuiTheme({
+	palette: {
+		primary: {
+			main: '#0E3A8C'
+		},
+		secondary: {
+			main: '#ff7c04'
+		},
+		error: {
+			main: '#dedede'
+		},
+		background: {
+			default: '#ffffff'
+		}
+	}
+});
+
 const useStyles = makeStyles({
 	root: {
 		color: '#0E3A8C'
 	}
 });
 
+const paisesLista = [
+	{ value: 'VE', label: 'Venezuela' },
+	{ label: 'Colombia', value: 'CO' },
+	{ label: 'Brazil', value: 'BR' },
+	{ label: 'Peru', value: 'PE' },
+	{ label: 'Ecuador', value: 'EC' },
+	{ label: 'Bolivia', value: 'BO' },
+	{ label: 'Uruguay', value: 'UY' },
+	{ label: 'Paraguay', value: 'PY' },
+	{ label: 'Argentina', value: 'AR' }
+];
+
 export default function LinearGrahp() {
 	const [maxD, setMaxD] = useState();
 	const [totalMax, setTotalMax] = useState();
 	const [countries, setCountries] = useState([]);
-	const [countriesSelection, setCountriesSelection] = useState([
-		{ value: 'VE', label: 'Venezuela' }
-	]);
+	const [countriesSelection, setCountriesSelection] = useState(paisesLista);
 
-	const [sliderValue, setSliderValue] = useState(60);
+	const [sliderValue, setSliderValue] = useState(150);
 	const classes = useStyles();
 	const [isLog, setIsLog] = useState(false);
 	const { toolTip, setToolTip } = useContext(ToolTipsContext);
@@ -135,14 +166,22 @@ export default function LinearGrahp() {
 						<div className='search'>
 							<div className='swicht-container'>
 								<span>Linear</span>
-								<Switch size='small' label='Log' onChange={switchHandler} />
+								<ThemeProvider theme={theme}>
+									<Switch
+										size='small'
+										label='Log'
+										onChange={switchHandler}
+										color='primary'
+									/>
+								</ThemeProvider>
+
 								<span>Log</span>
 							</div>
 							<Select
 								options={countries}
 								theme={customStyle}
 								isMulti
-								defaultValue={[{ value: 'VE', label: 'Venezuela' }]}
+								defaultValue={paisesLista}
 								placeholder='Add Country...'
 								onChange={setCountriesSelection}
 							/>
@@ -163,8 +202,8 @@ export default function LinearGrahp() {
 					<div className='lin-graph-container'>
 						<svg
 							width={1050}
-							height={400}
-							viewBox='-50 -10  1050 300'
+							height={385}
+							viewBox='-50 -20  1050 385'
 							style={{ backgroundColor: '#e0e0e0', borderRadius: 10 }}
 						>
 							<YDominioContext.Provider value={{ totalMax, setTotalMax }}>

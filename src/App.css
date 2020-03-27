@@ -146,11 +146,17 @@ x.y-axis-container,
 	height: 100vh;
 }
 
-.graph-title {
-	text-transform: uppercase;
+.title-map-container {
 	grid-column: 1/4;
 	grid-row: 1;
-	justify-self: center;
+	justify-self: stretch;
+}
+
+.graph-title {
+	text-transform: uppercase;
+	text-align: center;
+	background-color: #dbdbdb;
+	border-radius: 10px;
 	align-self: center;
 }
 

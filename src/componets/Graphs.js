@@ -5,11 +5,13 @@ import Cards from './Cards';
 import { InfectedContext } from '../contexts/InfectedContext';
 import { WorldDataContext } from '../contexts/WorldDataContext';
 import { ToolTipsContext } from '../contexts/ToolTipsContext';
+import { FilterNestDataContext } from '../contexts/FilterNestDataContext';
 import LineChart from './LineChart';
 
 export default function Graphs() {
 	const [infected, setInfected] = useState([]);
 	const [totalContagios, setTotalContagios] = useState(0);
+	const [filterNestData, setFilterNestData] = useState([]);
 	const [worldData, setWorldData] = useState([]);
 	const [toolTip, setToolTip] = useState({
 		isShow: false,
@@ -18,32 +20,36 @@ export default function Graphs() {
 		data: {}
 	});
 
-	// WorldData useEffect
+	const [totalFallecidos, setTotalFallecidos] = useState(0);
+
+	const formatNum = d3.format(',d');
+
+	// Total Fallecidos
 	useEffect(() => {
-		const date = d3.timeParse('%Y-%m-%d');
+		const myRequest = new Request(
+			'https://api.datadrum.com/json/cv.VE_deaths_cum',
+			{
+				method: 'GET',
+				headers: new Headers({
+					token: 'covid19'
+				})
+			}
+		);
 
-		d3.csv('data/full_data.csv', d => {
-			return (
-				(d.date = date(d.date)),
-				(d.new_cases = +d.new_cases),
-				(d.new_deaths = +d.new_deaths),
-				(d.total_cases = +d.total_cases),
-				(d.total_deaths = +d.total_deaths),
-				d
-			);
-		})
-			.then(resp => resp.filter(d => d.total_cases !== 0))
-
-			.then(resp => {
-				setWorldData(resp);
-				//setWorldData(resp);
-			});
+		fetch(myRequest)
+			.then(resp => resp.json())
+			.then(resp => resp.data)
+			.then(resp => resp[resp.length - 1])
+			.then(resp => formatNum(+resp.cv___VE_deaths_cum))
+			.then(resp => setTotalFallecidos(resp));
 	}, []);
+
+	//console.log('totalFallecidos', totalFallecidos);
 
 	// Infected useEffect
 	useEffect(() => {
 		const date = d3.timeParse('%m/%d/%Y');
-		d3.csv('/data/cov-19 ven - Sheet1.csv', d => {
+		d3.csv('/data/cov-19 ven - casos_confirmado.csv', d => {
 			return {
 				fecha: date(d.fecha),
 				nacionalidad: d.nacionalidad,
@@ -63,37 +69,43 @@ export default function Graphs() {
 
 	return (
 		<div className='grid'>
-			<h1 className='graph-title'>Distribucion de contagios confirmados</h1>
+			<div className='title-map-container'>
+				<h1 className='graph-title'>Distribución de contagios confirmados</h1>
+			</div>
 			<InfectedContext.Provider value={{ infected, setInfected }}>
 				<ToolTipsContext.Provider value={{ ...toolTip, setToolTip }}>
-					<BaseMap />
+					<FilterNestDataContext.Provider
+						value={{ filterNestData, setFilterNestData }}
+					>
+						<BaseMap />
 
-					<div className='cards-container'>
-						<Cards
-							total={totalContagios}
-							title={'TOTAL CONTAGIOS CONFIRMADOS:'}
-							id={'card_1'}
-							color='#ffae19'
-							WebkitTextStrokeColor='#A66C00'
-						/>
-						<Cards
-							total={0}
-							title={'TOTAL FALLECIDOS:'}
-							id={'card_2'}
-							color='#d81159'
-							WebkitTextStrokeColor='#890033'
-						/>
-						<Cards
-							total={0}
-							title={'TOTAL RECUPERADOS'}
-							id={'card_3'}
-							color='#09827e'
-							WebkitTextStrokeColor='#00514E'
-						/>
-					</div>
-					<WorldDataContext.Provider value={{ worldData, setWorldData }}>
-						<LineChart />
-					</WorldDataContext.Provider>
+						<div className='cards-container'>
+							<Cards
+								total={totalContagios}
+								title={'TOTAL CONTAGIOS CONFIRMADOS:'}
+								id={'card_1'}
+								color='#ffae19'
+								WebkitTextStrokeColor='#A66C00'
+							/>
+							<Cards
+								total={totalFallecidos}
+								title={'TOTAL FALLECIDOS CONFIRMADOS:'}
+								id={'card_2'}
+								color='#d81159'
+								WebkitTextStrokeColor='#890033'
+							/>
+							<Cards
+								total={0}
+								title={'TOTAL RECUPERADOS CONFIRMADOS:'}
+								id={'card_3'}
+								color='#09827e'
+								WebkitTextStrokeColor='#00514E'
+							/>
+						</div>
+						<WorldDataContext.Provider value={{ worldData, setWorldData }}>
+							<LineChart />
+						</WorldDataContext.Provider>
+					</FilterNestDataContext.Provider>
 				</ToolTipsContext.Provider>
 			</InfectedContext.Provider>
 		</div>

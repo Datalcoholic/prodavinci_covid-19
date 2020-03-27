@@ -16,13 +16,7 @@ export default function BaseMap() {
 		width: window.innerWidth * 1.2,
 		height: window.innerHeight * 1.2
 	});
-
 	const { infected, setInfected } = useContext(InfectedContext);
-
-	// const [infected, setInfected] = useGetInfected(
-	// 	'/data/cov-19 ven - Sheet1.csv'
-	// );
-
 	const [infectedPerDay, setInfectedPerDay] = useState([]);
 	const [infectedPerState, setInfectedPerState] = useState([]);
 	const [centroids, setCentroids] = useState([]);
@@ -31,7 +25,6 @@ export default function BaseMap() {
 	const { toolTip, setToolTip } = useContext(ToolTipsContext);
 
 	// añadir no informados
-
 	useEffect(() => {
 		//const ed =
 		edos.push({
@@ -120,10 +113,9 @@ export default function BaseMap() {
 		setCentroids(test);
 	}, [infectedPerState]);
 
-	//console.log('centroids', centroids);
+	console.log('centroids', centroids);
 
 	//bubles mouse events handler
-
 	function mouseOverHandler2(d) {
 		setItsHover(!itsHover);
 		setToolTip({
@@ -148,8 +140,6 @@ export default function BaseMap() {
 				viewBox={`0 0 ${WH.width} ${WH.height}`}
 				//style={{ backgroundColor: '#f2f2f2' }}
 			>
-				toolTip.isShow&&
-				<ToolTip />
 				<g className='edos'>
 					{edos.map(d => {
 						if (d.properties.NAME_1 === 'no informado') {
@@ -274,6 +264,8 @@ export default function BaseMap() {
 						);
 					})}
 				</g>
+				toolTip.isShow&&
+				<ToolTip />
 			</svg>
 		</div>
 	);

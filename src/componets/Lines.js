@@ -15,8 +15,8 @@ import {
 	DcnContext
 } from '../contexts/ButtonsContext';
 import { ApiContext } from '../contexts/ApiContext';
-
-import GetCountryData from '../utilities/GetCountryData';
+import { refLinesGene } from '../utilities/RefLinesGene';
+import { FilterNestDataContext } from '../contexts/FilterNestDataContext';
 
 export default function LineChart() {
 	const { worldData, setWorldData } = useContext(WorldDataContext);
@@ -27,7 +27,9 @@ export default function LineChart() {
 	const { countriesSelection, setCountriesSelection } = useContext(
 		CountriesSelectionContext
 	);
-	const [filterNestData, setFilterNestData] = useState([]);
+	const { filterNestData, setFilterNestData } = useContext(
+		FilterNestDataContext
+	);
 	const { sliderValue, setSliderValue } = useContext(SliderContext);
 	const { isLog, setIsLog } = useContext(IsLogContext);
 	const [itsHover, setItsHover] = useState(false);
@@ -39,6 +41,7 @@ export default function LineChart() {
 	// const { isDcn, setIsDcn } = useContext(DcnContext);
 	const [ecdcData, setEcdcData] = useState([]);
 	const { api, dispatch } = useContext(ApiContext);
+	const [lineasRef, setLineasRef] = useState([]);
 
 	//FetchData
 	useEffect(() => {
@@ -103,6 +106,20 @@ export default function LineChart() {
 		'#4024B0',
 		'#0E3A8C'
 	];
+
+	// Lineas Referenciales
+	useEffect(() => {
+		const referencias = [1, 3, 5, 10].map(d => {
+			return {
+				cada: d,
+				values: refLinesGene(150, 2, d)
+			};
+		});
+
+		setLineasRef(referencias);
+	}, []);
+
+	console.log('lineasRef', lineasRef);
 
 	//Add colors to filterNestData
 	// useEffect(() => {
@@ -219,6 +236,8 @@ export default function LineChart() {
 			color: d.target.attributes.fill.value
 		});
 
+		console.log('tool', d.target);
+
 		setRad(d.target.attributes.circleId.value);
 	}
 
@@ -229,6 +248,47 @@ export default function LineChart() {
 
 	return (
 		<svg style={{ overflow: 'visible' }}>
+			{isLog && (
+				<g className='linear-ref'>
+					{/* Lineas referenciales */}
+					{lineasRef.map((d, i) => (
+						<svg>
+							<path
+								id={`line-${d.cada}`}
+								key={`referencias-${i}`}
+								d={line(d.values)}
+								stroke='#a0a0a0'
+								style={{ strokeDasharray: 3 }}
+								fill='none'
+							/>
+							<text>
+								<textPath
+									xlinkHref={`#line-${d.cada}`}
+									startOffset={
+										d.cada === 1
+											? 400
+											: d.cada === 3
+											? 600
+											: d.cada >= 5
+											? 700
+											: 400
+									}
+									style={{
+										fill: '#a0a0a0',
+										fontSize: '12px',
+										fontWeight: 'bold',
+										stroke: '#f7f7f7',
+										strokeWidth: '1.8px',
+										paintOrder: 'stroke'
+									}}
+								>
+									{`Casos se duplican cada ${d.cada} `}
+								</textPath>
+							</text>
+						</svg>
+					))}
+				</g>
+			)}
 			<g className='path-container'>
 				{filterNestData.map((d, i) => (
 					<path
@@ -285,8 +345,8 @@ export default function LineChart() {
 								style={{
 									fontSize: '12px',
 									fontWeight: 'bold',
-									stroke: '#e0e0e0',
-									strokeWidth: '1.5px',
+									stroke: '#f7f7f7',
+									strokeWidth: '1.8px',
 									paintOrder: 'stroke'
 								}}
 							>
@@ -298,7 +358,6 @@ export default function LineChart() {
 					)
 				)
 			)}
-
 			<text
 				style={{ fontSize: '11px', fontStyle: 'italic', fill: '#818181' }}
 				x={-20}
