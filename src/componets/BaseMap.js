@@ -7,7 +7,7 @@ import useGetEstados from '../hooks/useGetEstados';
 import getInfected from '../utilities/getInfected';
 import { InfectedContext } from '../contexts/InfectedContext';
 import { ToolTipsContext } from '../contexts/ToolTipsContext';
-import ToolTip from './ToolTip';
+import ToolTipMap from './ToolTipMap';
 
 export default function BaseMap() {
 	const [venBase, setVenBase] = useGetTopoJson('/data/Ven_base.json');
@@ -23,6 +23,13 @@ export default function BaseMap() {
 	const [itsHover, setItsHover] = useState(false);
 	const [rad, setRad] = useState();
 	const { toolTip, setToolTip } = useContext(ToolTipsContext);
+
+	const [toolTipMap, setToolTipMap] = useState({
+		isShow: false,
+		x: 0,
+		y: 0,
+		data: {}
+	});
 
 	// añadir no informados
 	useEffect(() => {
@@ -113,24 +120,24 @@ export default function BaseMap() {
 		setCentroids(test);
 	}, [infectedPerState]);
 
-	console.log('centroids', centroids);
+	// console.log('centroids', centroids);
 
 	//bubles mouse events handler
-	function mouseOverHandler2(d) {
-		setItsHover(!itsHover);
-		setToolTip({
+	function mouseOverHandler_2(d) {
+		//setItsHover(!itsHover);
+		setToolTipMap({
 			isShow: true,
 			x: +d.target.attributes.cx.value,
 			y: +d.target.attributes.cy.value,
-			value: d.target.attributes.val.value,
-			color: d.target.attributes.fill.value
+			edo: d.target.attributes.edo.value
 		});
 
-		setRad(d.target.attributes.circleId.value);
+		// setRad(d.target.attributes.circleId.value);
 	}
 
+	console.log('mapTooltipData', toolTipMap);
 	function mouseOutHandler(params) {
-		setToolTip({ isShow: false });
+		setToolTipMap({ isShow: false });
 		setRad(false);
 	}
 
@@ -186,8 +193,8 @@ export default function BaseMap() {
 									strokeWidth={1.5}
 									opacity={0.4}
 									val={d.edo}
-									onMouseOut={mouseOutHandler}
-									onMouseOver={mouseOverHandler2}
+									//onMouseOut={mouseOutHandler}
+									//onMouseOver={mouseOverHandler_2}
 									circleId={`${d.key}_circle`}
 								></circle>
 								<text
@@ -216,6 +223,8 @@ export default function BaseMap() {
 							</g>
 						) : (
 							<g key={`${d.key}-${i}`}>
+								toolTipMap.isShow&&
+								<ToolTipMap {...toolTipMap} />
 								<circle
 									key={`${d.key}_circle`}
 									cx={
@@ -235,9 +244,9 @@ export default function BaseMap() {
 									stroke='#A66C00'
 									strokeWidth={1.5}
 									opacity={0.4}
-									val={d.key}
+									edo={d.key}
+									onMouseOver={mouseOverHandler_2}
 									onMouseOut={mouseOutHandler}
-									onMouseOver={mouseOverHandler2}
 									circleId={`${d.key}_circle`}
 								></circle>
 								<text
@@ -264,8 +273,6 @@ export default function BaseMap() {
 						);
 					})}
 				</g>
-				toolTip.isShow&&
-				<ToolTip />
 			</svg>
 		</div>
 	);

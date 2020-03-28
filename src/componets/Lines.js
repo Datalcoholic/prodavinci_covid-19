@@ -64,6 +64,7 @@ export default function LineChart() {
 			});
 
 			fetch(myRequest)
+				.then(resp => console.log('resp', resp))
 				.then(resp => resp.json())
 				.then(resp => resp.data)
 				.then(resp =>
@@ -119,7 +120,7 @@ export default function LineChart() {
 		setLineasRef(referencias);
 	}, []);
 
-	console.log('lineasRef', lineasRef);
+	//console.log('lineasRef', lineasRef);
 
 	//Add colors to filterNestData
 	// useEffect(() => {
@@ -165,8 +166,8 @@ export default function LineChart() {
 		// data.map(country => country.value.filter(d => d.dia_numero <= sliderValue));
 	}, [ecdcData, countries, sliderValue]);
 
-	console.log('filterNestData', filterNestData);
-	console.log('filterDays', sliderValue);
+	// console.log('filterNestData', filterNestData);
+	// console.log('filterDays', sliderValue);
 
 	// Dias Maximo
 	useEffect(() => {

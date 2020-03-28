@@ -4,7 +4,7 @@ import { ToolTipsContext } from '../contexts/ToolTipsContext';
 export default function ToolTip() {
 	const { isShow, x, y, value, color } = useContext(ToolTipsContext);
 
-	console.log('tips :', isShow, x, y, value, color);
+	//console.log('tips :', isShow, x, y, value, color);
 
 	return (
 		<foreignObject
