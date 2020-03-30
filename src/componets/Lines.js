@@ -17,6 +17,7 @@ import {
 import { ApiContext } from '../contexts/ApiContext';
 import { refLinesGene } from '../utilities/RefLinesGene';
 import { FilterNestDataContext } from '../contexts/FilterNestDataContext';
+import { gsap } from 'gsap';
 
 export default function LineChart() {
 	const { worldData, setWorldData } = useContext(WorldDataContext);
@@ -64,7 +65,6 @@ export default function LineChart() {
 			});
 
 			fetch(myRequest)
-				.then(resp => console.log('resp', resp))
 				.then(resp => resp.json())
 				.then(resp => resp.data)
 				.then(resp =>
@@ -93,10 +93,6 @@ export default function LineChart() {
 	}, [countriesSelection, api]);
 
 	// console.log('ecdcData', ecdcData);
-	const myRef = useRef();
-
-	//TODO:
-	//Filtrar nest data por dias con el valor del slider
 
 	const colors = [
 		'#ffae19',
@@ -164,7 +160,7 @@ export default function LineChart() {
 
 		setFilterNestData(data);
 		// data.map(country => country.value.filter(d => d.dia_numero <= sliderValue));
-	}, [ecdcData, countries, sliderValue]);
+	}, [ecdcData, setFilterNestData, sliderValue]);
 
 	// console.log('filterNestData', filterNestData);
 	// console.log('filterDays', sliderValue);
@@ -239,13 +235,66 @@ export default function LineChart() {
 
 		console.log('tool', d.target);
 
-		setRad(d.target.attributes.circleId.value);
+		setRad(d.target.attributes.circleid.value);
 	}
 
 	function mouseOutHandler(params) {
 		setToolTip({ isShow: false });
 		setRad(false);
 	}
+	//Animations
+
+	let pathRef = useRef([]);
+	let pathBackRef = useRef([]);
+	let pointsRef = useRef([]);
+	let textRef = useRef([]);
+
+	useEffect(() => {
+		try {
+			gsap
+				.timeline()
+				.fromTo(
+					pathRef.current,
+					{
+						strokeDasharray: 2000,
+						strokeDashoffset: 2000,
+						stagger: 0.2
+					},
+
+					{ strokeDashoffset: 0, stagger: 0.25, duration: 0.5 }
+				)
+				.fromTo(
+					pathBackRef.current,
+					{
+						// duration: 0.5,
+
+						strokeDasharray: 2000,
+						strokeDashoffset: 2000,
+						stagger: 0.2
+					},
+
+					{ strokeDashoffset: 0, stagger: 0.25, duration: 0.5 },
+					'-=0.5'
+				)
+				.fromTo(
+					pointsRef.current,
+					{
+						opacity: 0
+					},
+					{ opacity: 1, stagger: 0.1, duration: 0.6 },
+					'-=1'
+				)
+				.fromTo(
+					textRef.current,
+					{ opacity: 0 },
+					{ opacity: 1, duration: 0.5, stagger: 0.3 }
+				);
+		} catch (error) {
+			console.log(error);
+		}
+	}, [filterNestData]);
+
+	console.log('pathRef', pathRef);
 
 	return (
 		<svg style={{ overflow: 'visible' }}>
@@ -292,53 +341,59 @@ export default function LineChart() {
 			)}
 			<g className='path-container'>
 				{filterNestData.map((d, i) => (
-					<path
-						key={`${d.key}-${i}-back-line`}
-						d={line(d.values)}
-						style={{ stroke: '#e0e0e0', strokeWidth: '3px', fill: 'none' }}
-						className={`backline-pais-${i}`}
-					/>
-				))}
-
-				{filterNestData.map((d, i) => (
-					<path
-						d={line(d.values)}
-						key={`${d.key}-${i}`}
-						stroke={d.color ? d.color : '#d81159'}
-						fill='none'
-						className={`pais-${i}`}
-					/>
-				))}
-			</g>
-			<g className='points-container' ref={myRef}>
-				{filterNestData.map((country, a) =>
-					country.values.map((row, i) => (
-						<circle
-							className={`pais-${a}-circle`}
-							key={`${row.dia_numero}-circle`}
-							circleId={`${row.dia_numero}-circle`}
-							cx={xScale(row.dia_numero)}
-							cy={isLog ? yScaleLog(row.total_cases) : YScale(row.total_cases)}
-							r={
-								country.values.length - 1 <= i
-									? 3
-									: rad === `${row.dia_numero}-circle`
-									? 4
-									: 2
-							}
-							fill={country.color ? country.color : '#d81159'}
-							onMouseOver={mouseOverHandler}
-							onMouseOut={mouseOutHandler}
-							val={row.total_cases}
+					<svg>
+						<path
+							ref={el => (pathBackRef.current[i] = el)}
+							key={`${d.key}-${i}-back-line`}
+							d={line(d.values)}
+							style={{
+								stroke: '#e0e0e0',
+								strokeWidth: '3px',
+								fill: 'none'
+							}}
+							className={`backline-pais-${i}`}
 						/>
-					))
-				)}
+						<path
+							ref={el => (pathRef.current[i] = el)}
+							d={line(d.values)}
+							key={`${d.key}-${i}`}
+							stroke={d.color ? d.color : '#d81159'}
+							fill='none'
+							className={`pais-${i}`}
+						/>
+						{d.values.map((row, i) => (
+							<circle
+								ref={el => (pointsRef.current[i] = el)}
+								className={`pais-${1}-circle`}
+								key={`${row.dia_numero}-circle`}
+								circleid={`${row.dia_numero}-circle`}
+								cx={xScale(row.dia_numero)}
+								cy={
+									isLog ? yScaleLog(row.total_cases) : YScale(row.total_cases)
+								}
+								r={
+									d.values.length - 1 <= i
+										? 3
+										: rad === `${row.dia_numero}-circle`
+										? 4
+										: 2
+								}
+								fill={d.color ? d.color : '#d81159'}
+								onMouseOver={mouseOverHandler}
+								onMouseOut={mouseOutHandler}
+								val={row.total_cases}
+							/>
+						))}
+					</svg>
+				))}
 			</g>
-			{filterNestData.map(country =>
+
+			{filterNestData.map((country, ind) =>
 				country.values.map((row, i) =>
 					country.values.length - 1 === i ? (
 						<g className='label-container'>
 							<text
+								ref={el => (textRef.current[ind] = el)}
 								key={`${row.dia_numero}-text`}
 								x={xScale(row.dia_numero) + 10}
 								y={isLog ? yScaleLog(row.total_cases) : YScale(row.total_cases)}

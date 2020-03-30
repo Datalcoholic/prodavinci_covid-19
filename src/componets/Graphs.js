@@ -7,6 +7,7 @@ import { WorldDataContext } from '../contexts/WorldDataContext';
 import { ToolTipsContext } from '../contexts/ToolTipsContext';
 import { FilterNestDataContext } from '../contexts/FilterNestDataContext';
 import LineChart from './LineChart';
+import { gsap } from 'gsap';
 
 export default function Graphs() {
 	const [infected, setInfected] = useState([]);
@@ -95,7 +96,7 @@ export default function Graphs() {
 								WebkitTextStrokeColor='#890033'
 							/>
 							<Cards
-								total={0}
+								total={37}
 								title={'TOTAL RECUPERADOS CONFIRMADOS:'}
 								id={'card_3'}
 								color='#09827e'

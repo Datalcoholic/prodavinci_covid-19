@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import useGetTopoJson from '../hooks/useGetTopoJson';
 import * as d3 from 'd3';
-import { geoPath, style, geoCentroid, scaleSqrt } from 'd3';
+import { geoPath, geoCentroid } from 'd3';
+import { gsap } from 'gsap';
 import { feature } from 'topojson-client';
 import useGetEstados from '../hooks/useGetEstados';
 import getInfected from '../utilities/getInfected';
@@ -130,16 +131,32 @@ export default function BaseMap() {
 			x: +d.target.attributes.cx.value,
 			y: +d.target.attributes.cy.value,
 			edo: d.target.attributes.edo.value
+			//edo: d.nativeEvent.relatedTarget.className.baseVal
 		});
+		// console.log('target :', d.nativeEvent);
 
 		// setRad(d.target.attributes.circleId.value);
 	}
 
-	console.log('mapTooltipData', toolTipMap);
+	//console.log('mapTooltipData', toolTipMap);
 	function mouseOutHandler(params) {
 		setToolTipMap({ isShow: false });
 		setRad(false);
 	}
+
+	//Refs
+	const bubbles = useRef([]);
+
+	//	console.log('bubbles :', bubbles.current);
+
+	//Animations
+	useEffect(() => {
+		gsap.from(bubbles.current, {
+			duration: 5,
+			scale: 0,
+			stagger: 0.5
+		});
+	}, []);
 
 	return (
 		<div className='map-container'>
@@ -154,7 +171,7 @@ export default function BaseMap() {
 						} else {
 							return (
 								<path
-									key={`${d.properties.NAME_1}`}
+									key={d.properties.NAME_1}
 									className={`${d.properties.NAME_1}`}
 									d={geoGenerator(d)}
 									style={{
@@ -171,9 +188,44 @@ export default function BaseMap() {
 					<path
 						d={geoGenerator(venBase)}
 						className='country'
-						style={{ stroke: '#626263', strokeWidth: 1.2, fill: 'none' }}
+						style={{
+							stroke: '#626263',
+							strokeWidth: 1.2,
+							fill: 'none'
+						}}
 					/>
 				</g>
+
+				<g className='circles'>
+					{centroids.map((d, i) => {
+						return (
+							<circle
+								ref={element => {
+									bubbles.current[i] = element;
+								}}
+								key={`${d.key}_circle`}
+								cx={
+									d.key === 'vargas'
+										? d.centroid[0] + 10
+										: d.key === 'zulia'
+										? d.centroid[0] - 20
+										: d.centroid[0]
+								} // moviendo el estado vargas para evitar overlap
+								cy={d.centroid[1]}
+								r={radius(d.totalEdo)}
+								fill='#ffae19'
+								stroke='#A66C00'
+								strokeWidth={1.5}
+								opacity={0.4}
+								edo={d.key}
+								onMouseOver={mouseOverHandler_2}
+								onMouseOut={mouseOutHandler}
+								circleid={`${d.key}_circle`}
+							/>
+						);
+					})}
+				</g>
+
 				<g className='bubbles'>
 					{centroids.map((d, i) => {
 						return d.properties.NAME_1 === 'no informado' ? (
@@ -222,33 +274,9 @@ export default function BaseMap() {
 								</text>
 							</g>
 						) : (
-							<g key={`${d.key}-${i}`}>
+							<g key={`${d.key}-${i}`} className={`${d.key}-${i}`}>
 								toolTipMap.isShow&&
 								<ToolTipMap {...toolTipMap} />
-								<circle
-									key={`${d.key}_circle`}
-									cx={
-										d.key === 'vargas'
-											? d.centroid[0] + 10
-											: d.key === 'zulia'
-											? d.centroid[0] - 20
-											: d.centroid[0]
-									} // moviendo el estado vargas para evitar overlap
-									cy={d.centroid[1]}
-									r={
-										rad === `${d.key}_circle`
-											? radius(d.totalEdo) + 4
-											: radius(d.totalEdo)
-									}
-									fill='#ffae19'
-									stroke='#A66C00'
-									strokeWidth={1.5}
-									opacity={0.4}
-									edo={d.key}
-									onMouseOver={mouseOverHandler_2}
-									onMouseOut={mouseOutHandler}
-									circleId={`${d.key}_circle`}
-								></circle>
 								<text
 									key={`${d.key}_text`}
 									x={

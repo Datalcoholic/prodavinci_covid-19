@@ -213,7 +213,8 @@ h4 {
 
 .basemap,
 .edos,
-.bubbles {
+.bubbles,
+.circles {
 	position: absolute;
 	left: 50%;
 	top: 0%;
