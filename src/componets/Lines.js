@@ -15,9 +15,11 @@ import {
 	DcnContext
 } from '../contexts/ButtonsContext';
 import { ApiContext } from '../contexts/ApiContext';
+import { SvgContext } from '../contexts/SvgContext';
 import { refLinesGene } from '../utilities/RefLinesGene';
 import { FilterNestDataContext } from '../contexts/FilterNestDataContext';
 import { gsap } from 'gsap';
+import TooltipLineChart from './TooltipLineChart';
 
 export default function LineChart() {
 	const { worldData, setWorldData } = useContext(WorldDataContext);
@@ -43,8 +45,15 @@ export default function LineChart() {
 	const [ecdcData, setEcdcData] = useState([]);
 	const { api, dispatch } = useContext(ApiContext);
 	const [lineasRef, setLineasRef] = useState([]);
+	const [xMouse, SetXMouse] = useState({ x: 0 });
+	const [displayPoints, setDisplayPoints] = useState([]);
+	const sRef = useContext(SvgContext);
 
 	//FetchData
+	const parseTime = d3.timeParse('%Y-%m-%d');
+	const fechaFormat = d3.timeFormat('%d-%m-%Y');
+	const weekOfTheYear = d3.timeFormat('%W');
+
 	useEffect(() => {
 		// const urls = [
 		// 	'https://api.datadrum.com/json/cv_cases.Colombia',
@@ -80,6 +89,9 @@ export default function LineChart() {
 							(d.location = Object.keys(d)[1]
 								.split('___')[1]
 								.split('_')[0]),
+							(d.date = parseTime(d.date)),
+							(d.fecha = fechaFormat(d.date)),
+							(d.week = weekOfTheYear(d.date)),
 							d
 						)
 					)
@@ -141,24 +153,28 @@ export default function LineChart() {
 
 	// Nest ecdc Data
 	useEffect(() => {
-		const filterByDays = ecdcData.filter(d => d.dia_numero <= sliderValue);
+		try {
+			const filterByDays = ecdcData.filter(d => d.dia_numero <= sliderValue);
 
-		const data = d3
-			.nest()
-			.key(d => {
-				return d.location;
-			})
-			.entries(filterByDays);
+			const data = d3
+				.nest()
+				.key(d => {
+					return d.location;
+				})
+				.entries(filterByDays);
 
-		data.map(
-			(d, i) => (
-				(d.location_2 = countries.find(a => a.value === d.key).label),
-				(d.color = data.length - 1 > i ? colors[i] : '#626263'),
-				d
-			)
-		);
+			data.map(
+				(d, i) => (
+					(d.location_2 = countries.find(a => a.value === d.key).label),
+					(d.color = data.length - 1 > i ? colors[i] : '#626263'),
+					d
+				)
+			);
 
-		setFilterNestData(data);
+			setFilterNestData(data);
+		} catch (error) {
+			console.log('nest Data error :', error);
+		}
 		// data.map(country => country.value.filter(d => d.dia_numero <= sliderValue));
 	}, [ecdcData, setFilterNestData, sliderValue]);
 
@@ -223,6 +239,24 @@ export default function LineChart() {
 
 	const numFormat = d3.format(',d');
 
+	//Mouse eventLisetner
+	useEffect(() => {
+		sRef.current.addEventListener('mousemove', e => {
+			let x, y;
+			x = e.clientX;
+			y = e.clientY;
+			SetXMouse({ x: x });
+			//console.log('coord :', `x:${x},y:${y}`);
+		});
+
+		return sRef.current.removeEventListener('mousemove', e => {
+			let x, y;
+			x = e.clientX;
+			y = e.clientY;
+			SetXMouse({ x: x });
+		});
+	}, []);
+
 	function mouseOverHandler(d) {
 		setItsHover(!itsHover);
 		setToolTip({
@@ -236,6 +270,11 @@ export default function LineChart() {
 		console.log('tool', d.target);
 
 		setRad(d.target.attributes.circleid.value);
+
+		console.log(
+			'filterPointsRef :',
+			pointsRef.current.filter(d => d)
+		);
 	}
 
 	function mouseOutHandler(params) {
@@ -248,7 +287,22 @@ export default function LineChart() {
 	let pathBackRef = useRef([]);
 	let pointsRef = useRef([]);
 	let textRef = useRef([]);
+	let groupsPointRef = useRef([]);
 
+	useEffect(() => {
+		try {
+			const tooltipsPoints = Array.from(groupsPointRef.current.children).filter(
+				circle =>
+					Math.floor(+circle.attributes.cx.value) <= xMouse.x - 85 &&
+					Math.floor(+circle.attributes.cx.value) >= xMouse.x - 85 - 20
+			);
+			setDisplayPoints(tooltipsPoints);
+		} catch (error) {
+			console.log('error :', error);
+		}
+	}, [xMouse]);
+
+	//Lines and points timeline animation
 	useEffect(() => {
 		try {
 			gsap
@@ -256,8 +310,8 @@ export default function LineChart() {
 				.fromTo(
 					pathRef.current,
 					{
-						strokeDasharray: 2000,
-						strokeDashoffset: 2000,
+						strokeDasharray: 5000,
+						strokeDashoffset: 5000,
 						stagger: 0.2
 					},
 
@@ -266,10 +320,8 @@ export default function LineChart() {
 				.fromTo(
 					pathBackRef.current,
 					{
-						// duration: 0.5,
-
-						strokeDasharray: 2000,
-						strokeDashoffset: 2000,
+						strokeDasharray: 5000,
+						strokeDashoffset: 5000,
 						stagger: 0.2
 					},
 
@@ -294,7 +346,7 @@ export default function LineChart() {
 		}
 	}, [filterNestData]);
 
-	console.log('pathRef', pathRef);
+	//console.log('pathRef', pathRef);
 
 	return (
 		<svg style={{ overflow: 'visible' }}>
@@ -357,35 +409,40 @@ export default function LineChart() {
 							ref={el => (pathRef.current[i] = el)}
 							d={line(d.values)}
 							key={`${d.key}-${i}`}
-							stroke={d.color ? d.color : '#d81159'}
+							// stroke={d.color ? d.color : '#d81159'}
 							fill='none'
 							className={`pais-${i}`}
+							style={{ stroke: d.color ? d.color : '#d81159' }}
 						/>
-						{d.values.map((row, i) => (
-							<circle
-								ref={el => (pointsRef.current[i] = el)}
-								className={`pais-${1}-circle`}
-								key={`${row.dia_numero}-circle`}
-								circleid={`${row.dia_numero}-circle`}
-								cx={xScale(row.dia_numero)}
-								cy={
-									isLog ? yScaleLog(row.total_cases) : YScale(row.total_cases)
-								}
-								r={
-									d.values.length - 1 <= i
-										? 3
-										: rad === `${row.dia_numero}-circle`
-										? 4
-										: 2
-								}
-								fill={d.color ? d.color : '#d81159'}
-								onMouseOver={mouseOverHandler}
-								onMouseOut={mouseOutHandler}
-								val={row.total_cases}
-							/>
-						))}
 					</svg>
 				))}
+			</g>
+			<g className='points container' ref={groupsPointRef}>
+				{filterNestData.map(country =>
+					country.values.map((row, i) => (
+						<circle
+							ref={el => (pointsRef.current[i] = el)}
+							className={`pais-${i}-circle`}
+							key={`${row.dia_numero}-${country.key}-circle`}
+							cx={xScale(row.dia_numero)}
+							cy={isLog ? yScaleLog(row.total_cases) : YScale(row.total_cases)}
+							r={
+								country.values.length - 1 <= i
+									? 3
+									: rad === `${row.dia_numero}-circle`
+									? 4
+									: 2
+							}
+							fill={country.color ? country.color : '#d81159'}
+							onMouseOver={mouseOverHandler}
+							onMouseOut={mouseOutHandler}
+							val={row.total_cases}
+							pais={country.location_2}
+							circleid={`${row.dia_numero}-circle`}
+							xpos={xMouse.x}
+						/>
+					))
+				)}
 			</g>
 
 			{filterNestData.map((country, ind) =>
@@ -413,6 +470,11 @@ export default function LineChart() {
 						``
 					)
 				)
+			)}
+			{displayPoints.length !== 0 ? (
+				<TooltipLineChart {...[displayPoints]} />
+			) : (
+				''
 			)}
 			<text
 				style={{ fontSize: '11px', fontStyle: 'italic', fill: '#818181' }}

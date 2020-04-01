@@ -246,6 +246,33 @@ h4 {
 	font-weight: bold;
 	font-size: 0.88rem;
 }
+.tooltip-linechart {
+	width: 110px;
+	height: 100px;
+	min-height: 10px;
+	background-color: var(--color-primary-1);
+	border-radius: 5px;
+	opacity: 0.85;
+}
+
+.tooltipLine-container {
+	display: flex;
+	font-size: 3.55px;
+	justify-content: space-between;
+	align-items: flex-start;
+	opacity: 1;
+	z-index: 15;
+}
+
+.tool-tip-value-linechart {
+	font-family: var(--chart-font-0);
+	-webkit-text-stroke: 0.35px black;
+	paint-order: 'stroke';
+	margin-left: 5px;
+	margin-right: 5px;
+	text-align: left;
+	text-anchor: start;
+}
 
 circle {
 	cursor: pointer;

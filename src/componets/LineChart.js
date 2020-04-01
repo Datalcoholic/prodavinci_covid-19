@@ -1,4 +1,10 @@
-import React, { useContext, useState, useEffect, useReducer } from 'react';
+import React, {
+	useContext,
+	useState,
+	useEffect,
+	useReducer,
+	useRef
+} from 'react';
 import { WorldDataContext } from '../contexts/WorldDataContext';
 import { XDominioContext } from '../contexts/XDominioContext';
 import { YDominioContext } from '../contexts/YDominioContext';
@@ -27,6 +33,7 @@ import {
 	DcnContext
 } from '../contexts/ButtonsContext';
 import { ApiContext } from '../contexts/ApiContext';
+import { svgContext, SvgContext } from '../contexts/SvgContext';
 
 function reducer(state, action) {
 	switch (action.type) {
@@ -105,6 +112,13 @@ export default function LinearGrahp() {
 	const [isDcn, setIsDcn] = useState(false);
 
 	const [api, dispatch] = useReducer(reducer, '_cases_cum');
+	const [sRef, setSRef] = useState();
+
+	const svgRef = useRef();
+
+	useEffect(() => {
+		setSRef(svgRef);
+	}, []);
 
 	function handlerSliderValue(e, newValue) {
 		setSliderValue(newValue);
@@ -201,6 +215,7 @@ export default function LinearGrahp() {
 					</div>
 					<div className='lin-graph-container'>
 						<svg
+							ref={svgRef}
 							width={1050}
 							height={385}
 							viewBox='-50 -20  1050 385'
@@ -225,8 +240,10 @@ export default function LinearGrahp() {
 																	setCountriesSelection
 																}}
 															>
-																<Lines />
-																toolTip.isShow && <ToolTip />
+																<SvgContext.Provider value={svgRef}>
+																	<Lines />
+																	toolTip.isShow && <ToolTip />
+																</SvgContext.Provider>
 															</CountriesSelectionContext.Provider>
 														</IsLogContext.Provider>
 													</SliderContext.Provider>
